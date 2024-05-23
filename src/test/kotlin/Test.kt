@@ -8,12 +8,14 @@ import java.nio.file.Path
 import kotlin.math.pow
 
 fun main() {
-    val a = 0.5454651231
-    println(a.round(2))
+    val value = "&{#FFCCFF,b,i}"
+    value.substring(2, value.length-1).split(',').forEach {
+        println(it)
+    }
 }
 
 fun Double.round(c: Int): Double {
-    return Math.round( this * 10.0.pow(c.toDouble())) * 0.1.pow(c.toDouble())
+    return Math.round(this * 10.0.pow(c.toDouble())) * 0.1.pow(c.toDouble())
 }
 
 fun CoroutineScope.suspendFun(): Deferred<Int> {

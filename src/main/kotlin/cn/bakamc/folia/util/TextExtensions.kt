@@ -13,7 +13,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
 import org.bukkit.block.Block
 import org.bukkit.command.CommandSender
-import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack
+import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack
 import org.bukkit.entity.Player
 
 fun literalText(content: String = ""): MutableComponent {
@@ -101,14 +101,6 @@ fun ItemStack.getDisplayNameWithCount(): MutableComponent {
     return mutableText1
 }
 
-fun Style(formatting: ChatFormatting): Style {
-    return Style.EMPTY.applyFormat(formatting)
-}
-
-fun Style(vararg formatting: ChatFormatting): Style {
-    return Style.EMPTY.applyFormats(*formatting)
-}
-
 fun Style(color: RGBColor): Style {
     return Style.EMPTY.withColor(color)
 }
@@ -116,7 +108,6 @@ fun Style(color: RGBColor): Style {
 fun Style.withColor(color: RGBColor): Style {
     return this.withColor(color.rgb)
 }
-
 
 fun Style(hoverEvent: HoverEvent): Style {
     return Style.EMPTY.withHoverEvent(hoverEvent)

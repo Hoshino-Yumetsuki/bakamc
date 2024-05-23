@@ -1,8 +1,8 @@
 package cn.bakamc.folia.command.base
 
+import cn.bakamc.folia.extension.toServerPlayer
 import cn.bakamc.folia.util.formatText
 import cn.bakamc.folia.util.sendMessage
-import cn.bakamc.folia.util.toServerPlayer
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.Style

@@ -4,7 +4,6 @@ import cn.bakamc.folia.util.Style
 import cn.bakamc.folia.util.formatText
 import cn.bakamc.folia.util.logger
 import cn.bakamc.folia.util.sendMessage
-import net.minecraft.ChatFormatting
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
@@ -24,7 +23,9 @@ class Command(
         runCatching {
             onCommand(CommandContext(sender, command.name, args.toList()).next(this))
         }.onFailure {
-            if (it is CommandExecuteException) sender.sendMessage(formatText("执行指令({})时出现异常!请联系服务器管理员!", Style(ChatFormatting.RED), command.name))
+            if (it is CommandExecuteException) sender.sendMessage(formatText("执行指令({})时出现异常!请联系服务器管理员!", Style(
+                moe.forpleuvoir.nebula.common.color.Color("#FF5555")
+            ), command.name))
             logger.error("执行指令(${command.name})时出现异常", it)
         }
         return true

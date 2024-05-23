@@ -13,7 +13,8 @@ import cn.bakamc.folia.service.PlayerService
 import cn.bakamc.folia.util.*
 import kotlinx.coroutines.runBlocking
 import moe.forpleuvoir.nebula.common.api.Initializable
-import net.minecraft.ChatFormatting
+import moe.forpleuvoir.nebula.common.color.Colors
+import moe.forpleuvoir.nebula.common.util.clamp
 import net.minecraft.server.level.ServerPlayer
 import org.bukkit.GameMode
 import org.bukkit.entity.Player
@@ -143,6 +144,7 @@ object FlightEnergyManager : Listener, Initializable {
         energyBar[player] = EnergyBar.create(server, player, energyCache[player]!!)
         if (player.gameMode == GameMode.SURVIVAL) {
             player.allowFlight = energyCache[player]!!.enabled
+            if (player.isOnGround) return
             player.isFlying = energyCache[player]!!.enabled
         }
     }
@@ -168,6 +170,18 @@ object FlightEnergyManager : Listener, Initializable {
         } else {
             energyBar[player]!!.setVisible(false)
         }
+    }
+
+    fun addAllOnlinePlayerEnergy(energy: Double, range: ClosedRange<Double>): Int {
+        energyCache.values.forEach {
+            it.energy = (it.energy + energy).clamp(range)
+        }
+        if (syncing.get()) {
+            runDelayed(1.seconds) {
+                sync()
+            }
+        }
+        return energyCache.size
     }
 
     /**
@@ -211,15 +225,15 @@ object FlightEnergyManager : Listener, Initializable {
         onlinePlayers.filter {
             it.gameMode == GameMode.SURVIVAL && it.energy > 0.0
         }.filter {
-            energyBar[it]!!.setVisible(it.isFlying)
+            energyBar[it]?.setVisible(it.isFlying)
             it.isFlying
         }.forEach { player ->
             player.energy = (player.energy - (ENERGY_COST)).coerceAtLeast(0.0)
             energyBar[player]!!.tick()
             if (player.energy <= 0.0) {
                 toggleFly(player, false)
-                player.sendMessage(literalText("飞行能量已耗尽", Style(ChatFormatting.RED)))
-                player.execute{
+                player.sendMessage(literalText("飞行能量已耗尽", Style(Colors.RED)))
+                player.execute {
                     player.addPotionEffect(PotionEffect(PotionEffectType.SLOW_FALLING, 400, 1, false, true))
                 }
 

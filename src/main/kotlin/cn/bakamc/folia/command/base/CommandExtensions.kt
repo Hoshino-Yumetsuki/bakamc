@@ -1,6 +1,6 @@
 package cn.bakamc.folia.command.base
 
-import cn.bakamc.folia.util.toServerPlayer
+import cn.bakamc.folia.extension.toServerPlayer
 import net.minecraft.network.chat.Component
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player

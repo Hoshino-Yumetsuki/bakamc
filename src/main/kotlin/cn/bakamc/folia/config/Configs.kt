@@ -7,22 +7,24 @@ import cn.bakamc.folia.config.base.ConfigStringListMap
 import cn.bakamc.folia.event.entity.BlockInfo
 import cn.bakamc.folia.event.entity.EntityInfo
 import cn.bakamc.folia.util.logger
-import moe.forpleuvoir.nebula.config.category.ConfigCategoryImpl
-import moe.forpleuvoir.nebula.config.item.impl.ConfigDouble
-import moe.forpleuvoir.nebula.config.item.impl.ConfigEnum
-import moe.forpleuvoir.nebula.config.item.impl.ConfigString
-import moe.forpleuvoir.nebula.config.item.impl.ConfigTime
-import moe.forpleuvoir.nebula.config.manager.LocalConfigManager
-import moe.forpleuvoir.nebula.config.persistence.JsonConfigManagerPersistence
+import moe.forpleuvoir.nebula.config.container.ConfigContainerImpl
+import moe.forpleuvoir.nebula.config.item.impl.*
+import moe.forpleuvoir.nebula.config.manager.ConfigManagerImpl
+import moe.forpleuvoir.nebula.config.manager.component.localConfig
+import moe.forpleuvoir.nebula.config.manager.compose
+import moe.forpleuvoir.nebula.config.persistence.JsonConfigManagerPersistence.serializeObjectToString
+import moe.forpleuvoir.nebula.config.persistence.JsonConfigManagerPersistence.wrapFileName
+import moe.forpleuvoir.nebula.config.persistence.jsonPersistence
 import moe.forpleuvoir.nebula.config.util.ConfigUtil
 import org.bukkit.boss.BarColor
 import org.bukkit.boss.BarStyle
 import java.nio.file.Path
-import kotlin.time.DurationUnit
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
-object Configs : LocalConfigManager("bakamc"), JsonConfigManagerPersistence {
+object Configs : ConfigManagerImpl("bakamc") {
 
-    override lateinit var configPath: Path
+    lateinit var configPath: Path
         internal set
 
     /**
@@ -31,6 +33,11 @@ object Configs : LocalConfigManager("bakamc"), JsonConfigManagerPersistence {
      */
     suspend fun init(path: Path) {
         configPath = path
+
+        compose {
+            localConfig(configPath, jsonPersistence())
+        }
+
         backup()
         init()
         generateTemp()
@@ -45,12 +52,13 @@ object Configs : LocalConfigManager("bakamc"), JsonConfigManagerPersistence {
         }
     }
 
-    @Suppress("RedundantSuspendModifier")
+    @Suppress("RedundantSuspendModifier", "MemberVisibilityCanBePrivate")
     internal suspend fun backup() {
         runCatching {
             ConfigUtil.run {
-                val backupFile = configFile(fileName("${key}.backup"), configPath)
-                val file = configFile(fileName(key), configPath)
+                val fileName = wrapFileName(this@Configs.key)
+                val backupFile = configFile("$fileName.backup", configPath)
+                val file = configFile(fileName, configPath)
                 file.copyTo(backupFile, true)
             }
         }.onFailure {
@@ -64,11 +72,12 @@ object Configs : LocalConfigManager("bakamc"), JsonConfigManagerPersistence {
     /**
      * 生成当前版本的默认配置文件
      */
-    @Suppress("RedundantSuspendModifier")
+    @Suppress("RedundantSuspendModifier", "MemberVisibilityCanBePrivate")
     internal suspend fun generateTemp() {
         runCatching {
             ConfigUtil.run {
-                val file = configFile(fileName("${key}.temp"), configPath)
+                val fileName = wrapFileName(this@Configs.key)
+                val file = configFile("$fileName.temp", configPath)
                 writeStringToFile(serializeObjectToString(serialization().asObject), file)
             }
         }.onFailure {
@@ -78,7 +87,29 @@ object Configs : LocalConfigManager("bakamc"), JsonConfigManagerPersistence {
         }
     }
 
-    object Database : ConfigCategoryImpl("database") {
+    object Misc : ConfigContainerImpl("misc") {
+
+        val ENABLE_PLAYER_JOIN_MESSAGE by ConfigBoolean("enable_player_join_message", true)
+
+        val ENABLE_PLAYER_QUIT_MESSAGE by ConfigBoolean("enable_player_quit_message", true)
+
+        val ENABLE_ANVIL_CUSTOM_RENAME by ConfigBoolean("enable_anvil_custom_rename", true)
+
+        val ANVIL_RENAME_STYLE_MAPPING by ConfigStringListMap(
+            key = "anvil_rename_style_mapping",
+            defaultValue = mapOf(
+                "obfuscated" to listOf("o", "obfuscated", "OBFUSCATED"),
+                "bold" to listOf("b", "bold", "BOLD"),
+                "strikethrough" to listOf("s", "strikethrough", "STRIKETHROUGH"),
+                "underline" to listOf("l", "underline", "UNDERLINE"),
+                "italic" to listOf("i", "italic", "ITALIC"),
+                "rest" to listOf("r", "rest", "RESET")
+            )
+        )
+
+    }
+
+    object Database : ConfigContainerImpl("database") {
 
         val URL by ConfigString("url", "jdbc:mysql://localhost:3306/bakamc?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai")
 
@@ -86,19 +117,35 @@ object Configs : LocalConfigManager("bakamc"), JsonConfigManagerPersistence {
 
         val PASSWORD by ConfigString("password", "root")
 
+        object DataSource : ConfigContainerImpl("data_source") {
+
+            val CONNECTION_TIMEOUT by ConfigLong("connection_timeout", 60000)
+
+            val IDLE_TIMEOUT by ConfigLong("idle_timeout", 60000)
+
+            val MAXIMUM_POOL_SIZE by ConfigInt("maximum_pool_size", 30)
+
+            val MAX_LIFETIME by ConfigLong("max_lifetime", 180000)
+
+            val KEEPALIVE_TIME by ConfigLong("keepalive_time", 0)
+
+            val MINIMUM_IDLE by ConfigInt("minimum_idle", 5)
+
+        }
+
     }
 
-    object FlightEnergy : ConfigCategoryImpl("flight_energy") {
+    object FlightEnergy : ConfigContainerImpl("flight_energy") {
 
-        val TICK_PERIOD by ConfigTime("tick_period", 1.0, DurationUnit.SECONDS)
+        val TICK_PERIOD by ConfigDuration("tick_period", 1.0.seconds)::duration
 
         val ENERGY_COST by ConfigDouble("energy_cost", 1.0)
 
         val MAX_ENERGY by ConfigDouble("max_energy", 5000.0)
 
-        val SYNC_PERIOD by ConfigTime("sync_period", 5.0, DurationUnit.MINUTES)
+        val SYNC_PERIOD by ConfigDuration("sync_period", 5.0.minutes)::duration
 
-        object EnergyBar : ConfigCategoryImpl("energy_bar") {
+        object EnergyBar : ConfigContainerImpl("energy_bar") {
 
             val COLOR: BarColor by ConfigEnum("color", BarColor.GREEN)
 
@@ -108,6 +155,8 @@ object Configs : LocalConfigManager("bakamc"), JsonConfigManagerPersistence {
 
         }
 
+        val PRICE by ConfigDouble("price", 1.0)
+
         val MONEY_ITEM by ConfigStringDoubleMap(
             "money_item",
             mapOf(
@@ -115,6 +164,7 @@ object Configs : LocalConfigManager("bakamc"), JsonConfigManagerPersistence {
                 "冰辉石" to 78.125
             )
         )
+
 
     }
 
@@ -127,7 +177,7 @@ object Configs : LocalConfigManager("bakamc"), JsonConfigManagerPersistence {
         )
     )
 
-    object Entity : ConfigCategoryImpl("entity") {
+    object Entity : ConfigContainerImpl("entity") {
 
         val ENTITY_INFOS by ConfigEntityInfos(
             "entity_infos",

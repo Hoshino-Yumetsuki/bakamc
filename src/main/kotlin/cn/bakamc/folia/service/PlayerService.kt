@@ -3,6 +3,7 @@ package cn.bakamc.folia.service
 import cn.bakamc.folia.db.database
 import cn.bakamc.folia.db.table.*
 import cn.bakamc.folia.extension.uuid
+import moe.forpleuvoir.nebula.common.util.clamp
 import org.bukkit.entity.Player
 import org.ktorm.dsl.batchUpdate
 import org.ktorm.dsl.eq
@@ -74,6 +75,20 @@ object PlayerService {
                         where {
                             it.uuid eq e.uuid
                         }
+                    }
+                }
+            }
+        }.filter { it > 0 }.size
+    }
+
+    suspend fun addAllPlayerEnergy(energy: Double, range: ClosedRange<Double>): Int {
+        return database {
+            val list = flightEnergies
+            batchUpdate(FlightEnergies) {
+                list.forEach { flightEnergy ->
+                    val value = flightEnergy.energy + energy.clamp(range)
+                    item {
+                        set(it.energy, value)
                     }
                 }
             }

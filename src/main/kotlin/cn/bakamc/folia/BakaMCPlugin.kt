@@ -11,6 +11,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
+import net.milkbowl.vault.economy.Economy
+import org.bukkit.plugin.RegisteredServiceProvider
 import org.bukkit.plugin.java.JavaPlugin
 
 class BakaMCPlugin : JavaPlugin() {
@@ -23,11 +25,20 @@ class BakaMCPlugin : JavaPlugin() {
             private set
     }
 
+    lateinit var economy: Economy
+        private set
+
 
     override fun onEnable() {
         instance = this
         PluginScope = CoroutineScope(Dispatchers.IO)
+
         logger.info("BakaMCPlugin loading...")
+        if (setupEconomy()) {
+            logger.info("BakaMCPlugin 找到经济插件")
+        }else{
+            logger.warning("BakaMCPlugin 未找到经济插件")
+        }
 
         Configs.onLoaded {
             EntityChangedBlockEventListener.reloadCache()
@@ -49,7 +60,8 @@ class BakaMCPlugin : JavaPlugin() {
         logger.info("BakaMCPlugin is enabled")
     }
 
-    fun reload(){
+    fun reload() {
+
         server.asyncScheduler.cancelTasks(this)
         FlightEnergyManager.onDisable()
         SpecialItemManager.onDisable()
@@ -59,6 +71,16 @@ class BakaMCPlugin : JavaPlugin() {
         }
 
     }
+
+    fun setupEconomy(): Boolean {
+        if (server.pluginManager.getPlugin("Vault") == null) {
+            return false
+        }
+        val rsp: RegisteredServiceProvider<Economy> = server.servicesManager.getRegistration(Economy::class.java) ?: return false
+        economy = rsp.provider
+        return true
+    }
+
 
     override fun onDisable() {
         server.asyncScheduler.cancelTasks(this)

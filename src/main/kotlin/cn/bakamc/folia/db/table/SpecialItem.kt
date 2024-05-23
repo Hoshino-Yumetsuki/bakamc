@@ -3,6 +3,7 @@ package cn.bakamc.folia.db.table
 import cn.bakamc.folia.util.logger
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.NbtAccounter
 import net.minecraft.nbt.NbtIo
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
@@ -54,8 +55,7 @@ val ItemStack.nameSpace: String get() = BuiltInRegistries.ITEM.getKey(this.item)
 
 fun readNbtTag(tagData: ByteArray): CompoundTag? {
     return if (tagData.isEmpty()) null
-    else NbtIo.readCompressed(ByteArrayInputStream(tagData))
-
+    else NbtIo.readCompressed(ByteArrayInputStream(tagData),NbtAccounter.unlimitedHeap())
 }
 
 fun writeNbtTag(tag: CompoundTag?): ByteArray? {

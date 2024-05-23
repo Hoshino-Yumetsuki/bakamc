@@ -1,11 +1,11 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    val kotlinVersion = "1.9.10"
+    val kotlinVersion = "1.9.23"
     java
     signing
-    id("io.papermc.paperweight.userdev") version "1.5.5"
-    id("xyz.jpenilla.run-paper") version "2.2.0" // Adds runServer and runMojangMappedServer tasks for testing
+    id("io.papermc.paperweight.userdev") version "1.6.3"
+    id("xyz.jpenilla.run-paper") version "2.2.4" // Adds runServer and runMojangMappedServer tasks for testing
     kotlin("jvm") version kotlinVersion
     kotlin("plugin.noarg") version kotlinVersion
     id("com.github.johnrengelman.shadow") version "7.1.2"
@@ -17,6 +17,7 @@ repositories {
     mavenLocal()
     maven { url = uri("https://maven.forpleuvoir.moe/snapshots") }
     maven { url = uri("https://maven.forpleuvoir.moe/releases") }
+    maven { url = uri("https://jitpack.io") }
 }
 
 
@@ -25,13 +26,18 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
 
-    paperweight.foliaDevBundle("1.20.1-R0.1-SNAPSHOT")
+    paperweight.foliaDevBundle("1.20.4-R0.1-SNAPSHOT")
 
-    api("moe.forpleuvoir:nebula:0.2.6c") {
+    api("moe.forpleuvoir:nebula:0.2.8f") {
         exclude("moe.forpleuvoir", "nebula-event")
     }
+
+    compileOnly("com.github.MilkBowl:VaultAPI:1.7") {
+        isTransitive = false
+    }
     //data base
-    apply {
+    @Suppress("REDUNDANT_LABEL_WARNING")
+    database@ apply {
         val ktormVersion = "3.6.0"
         runtimeOnly("com.mysql:mysql-connector-j:8.1.0")
         implementation("org.ktorm:ktorm-core:${ktormVersion}")
@@ -41,7 +47,7 @@ dependencies {
 }
 
 group = "cn.bakamc"
-version = "0.1.1c"
+version = "0.1.4b"
 description = "这是什么插件"
 
 sourceSets {
@@ -53,7 +59,7 @@ sourceSets {
 
 java {
     withSourcesJar()
-    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
 tasks {
@@ -62,15 +68,16 @@ tasks {
         dependsOn(reobfJar)
     }
 
+
     withType<JavaCompile>().configureEach {
         this.options.release
         this.options.encoding = "UTF-8"
-        targetCompatibility = JavaVersion.VERSION_17.toString()
-        sourceCompatibility = JavaVersion.VERSION_17.toString()
+        targetCompatibility = JavaVersion.VERSION_21.toString()
+        sourceCompatibility = JavaVersion.VERSION_21.toString()
     }
     withType<KotlinCompile>().configureEach {
         kotlinOptions.suppressWarnings = true
-        kotlinOptions.jvmTarget = JavaVersion.VERSION_17.toString()
+        kotlinOptions.jvmTarget = JavaVersion.VERSION_21.toString()
     }
     processResources {
         filteringCharset = Charsets.UTF_8.name() // We want UTF-8 for everything
@@ -78,7 +85,7 @@ tasks {
             "name" to project.name,
             "version" to project.version,
             "description" to project.description,
-            "apiVersion" to "1.20"
+            "apiVersion" to "1.20.4"
         )
         inputs.properties(props)
         filesMatching("plugin.yml") {

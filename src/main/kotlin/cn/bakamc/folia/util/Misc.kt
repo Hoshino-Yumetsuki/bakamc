@@ -4,10 +4,8 @@ package cn.bakamc.folia.util
 
 import cn.bakamc.folia.BakaMCPlugin
 import cn.bakamc.folia.BakaMCPlugin.Companion.PluginScope
-import io.papermc.paper.threadedregions.scheduler.EntityScheduler
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask
 import kotlinx.coroutines.*
-import moe.forpleuvoir.nebula.common.util.Time
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeNull
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
@@ -15,9 +13,7 @@ import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
 import moe.forpleuvoir.nebula.serialization.extensions.serializeArray
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import net.minecraft.nbt.*
-import net.minecraft.server.MinecraftServer
 import org.bukkit.entity.Entity
-import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
@@ -30,7 +26,7 @@ internal val server by lazy { bakamc.server }
 
 internal val logger by lazy { Logger(BakaMCPlugin.instance.logger) }
 
-fun Player.toServerPlayer() = MinecraftServer.getServer().playerList.getPlayer(this.uniqueId)
+
 
 internal fun Entity.execute(delay: Long = 1, task: () -> Unit) {
     this.scheduler.execute(bakamc, task, null, delay)
@@ -92,48 +88,6 @@ data class AsyncTask(
     val task: (ScheduledTask) -> Unit,
 ) {
     internal constructor(initialDelay: Duration, period: Duration, task: (ScheduledTask) -> Unit) : this(initialDelay, period, bakamc, task)
-
-    constructor(initialDelay: Time, period: Time, plugin: Plugin, task: (ScheduledTask) -> Unit) : this(
-        initialDelay.duration,
-        period.duration,
-        plugin,
-        task
-    )
-
-    internal constructor(initialDelay: Time, period: Time, task: (ScheduledTask) -> Unit) : this(
-        initialDelay.duration,
-        period.duration,
-        bakamc,
-        task
-    )
-
-    constructor(initialDelay: Duration, period: Time, plugin: Plugin, task: (ScheduledTask) -> Unit) : this(
-        initialDelay,
-        period.duration,
-        plugin,
-        task
-    )
-
-    internal constructor(initialDelay: Duration, period: Time, task: (ScheduledTask) -> Unit) : this(
-        initialDelay,
-        period.duration,
-        bakamc,
-        task
-    )
-
-    constructor(initialDelay: Time, period: Duration, plugin: Plugin, task: (ScheduledTask) -> Unit) : this(
-        initialDelay.duration,
-        period,
-        plugin,
-        task
-    )
-
-    internal constructor(initialDelay: Time, period: Duration, task: (ScheduledTask) -> Unit) : this(
-        initialDelay.duration,
-        period,
-        bakamc,
-        task
-    )
 }
 
 fun <T : Comparable<T>> ClosedRange<T>.serialization(): SerializeElement {
