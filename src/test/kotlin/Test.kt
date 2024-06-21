@@ -8,10 +8,7 @@ import java.nio.file.Path
 import kotlin.math.pow
 
 fun main() {
-    val value = "&{#FFCCFF,b,i}"
-    value.substring(2, value.length-1).split(',').forEach {
-        println(it)
-    }
+    println("bind 66FFCC".substring("bind".length+1))
 }
 
 fun Double.round(c: Int): Double {

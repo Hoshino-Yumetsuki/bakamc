@@ -32,7 +32,6 @@ class BakaMCPlugin : JavaPlugin() {
     override fun onEnable() {
         instance = this
         PluginScope = CoroutineScope(Dispatchers.IO)
-
         logger.info("BakaMCPlugin loading...")
         if (setupEconomy()) {
             logger.info("BakaMCPlugin 找到经济插件")

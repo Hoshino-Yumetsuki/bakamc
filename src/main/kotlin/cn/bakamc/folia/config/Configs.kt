@@ -137,13 +137,15 @@ object Configs : ConfigManagerImpl("bakamc") {
 
     object FlightEnergy : ConfigContainerImpl("flight_energy") {
 
-        val TICK_PERIOD by ConfigDuration("tick_period", 1.0.seconds)::duration
+        val TICK_PERIOD by ConfigDuration("tick_period", 1.0.seconds)
 
         val ENERGY_COST by ConfigDouble("energy_cost", 1.0)
 
         val MAX_ENERGY by ConfigDouble("max_energy", 5000.0)
 
-        val SYNC_PERIOD by ConfigDuration("sync_period", 5.0.minutes)::duration
+        val SYNC_PERIOD by ConfigDuration("sync_period", 5.0.minutes)
+
+        val CLOSE_ADVENTURE_PLAYERS_FLYING by ConfigBoolean("close_adventure_players_flying", false)
 
         object EnergyBar : ConfigContainerImpl("energy_bar") {
 

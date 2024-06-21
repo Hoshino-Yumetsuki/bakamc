@@ -52,6 +52,7 @@ class EnergyBar private constructor(
     }
 
     fun close() {
+        bar.removeAll()
         server.removeBossBar(key)
     }
 }

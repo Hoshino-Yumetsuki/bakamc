@@ -1,5 +1,6 @@
 package cn.bakamc.folia.flight_energy
 
+import cn.bakamc.folia.config.Configs.FlightEnergy.CLOSE_ADVENTURE_PLAYERS_FLYING
 import cn.bakamc.folia.config.Configs.FlightEnergy.ENERGY_COST
 import cn.bakamc.folia.config.Configs.FlightEnergy.MONEY_ITEM
 import cn.bakamc.folia.config.Configs.FlightEnergy.SYNC_PERIOD
@@ -26,6 +27,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.measureTime
 import kotlin.time.measureTimedValue
 
 
@@ -165,7 +167,7 @@ object FlightEnergyManager : Listener, Initializable {
             val isFlying = player.isFlying
             runDelayed(0.1.seconds) {
                 player.allowFlight = energyCache[player]!!.enabled
-                player.isFlying = isFlying
+                if (player.allowFlight) player.isFlying = isFlying
             }
         } else {
             energyBar[player]!!.setVisible(false)
@@ -213,8 +215,13 @@ object FlightEnergyManager : Listener, Initializable {
     }
 
     suspend fun Player.updateEnergy(energy: Double) {
+        val old = this.energy
         this.energy = energy
-        PlayerService.updateFlightEnergy(energyCache[this]!!)
+        measureTime {
+            PlayerService.updateFlightEnergy(energyCache[this]!!)
+        }.let {
+            logger.info("玩家飞行能量更改[${old} -> ${this.energy}],耗时$it")
+        }
     }
 
     /**
@@ -222,8 +229,15 @@ object FlightEnergyManager : Listener, Initializable {
      * 每秒执行一次
      */
     private fun tick() {
+        if (CLOSE_ADVENTURE_PLAYERS_FLYING) {
+            onlinePlayers.filter { player -> player.gameMode == GameMode.ADVENTURE && player.allowFlight }.forEach { player ->
+                player.execute {
+                    player.allowFlight = false
+                }
+            }
+        }
         onlinePlayers.filter {
-            it.gameMode == GameMode.SURVIVAL && it.energy > 0.0
+            it.gameMode == GameMode.SURVIVAL && it.gameMode == GameMode.ADVENTURE && it.energy > 0.0 && it.vehicle == null
         }.filter {
             energyBar[it]?.setVisible(it.isFlying)
             it.isFlying

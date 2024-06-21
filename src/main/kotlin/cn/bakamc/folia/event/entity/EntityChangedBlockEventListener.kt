@@ -52,9 +52,9 @@ object EntityChangedBlockEventListener : Listener {
     }
 
     private inline fun inChangedCache(entity: Entity, from: Block, to: String, action: () -> Unit) {
-        changedCache.forEach { (e, b) ->
-            if (e.isMatch(entity)) {
-                b.find { it.isMatch(from, to) }?.let {
+        changedCache.forEach { (entityInfo, blockChangeList) ->
+            if (entityInfo.isMatch(entity)) {
+                blockChangeList.find { it.isMatch(from, to) }?.let {
                     action()
                 }
             }
@@ -101,8 +101,8 @@ data class EntityInfo(
     fun isMatch(target: Entity): Boolean {
         if (this == EMPTY) return false
         return name?.let { target.name == it } ?: true
-               && uuid?.let { target.uniqueId.toString() == it } ?: true
-               && type?.let { target.type.key.toString() == it } ?: true
+                && uuid?.let { target.uniqueId.toString() == it } ?: true
+                && type?.let { target.type.key.toString() == it } ?: true
     }
 
     override fun serialization(): SerializeElement {
@@ -160,7 +160,7 @@ data class BlockChange(
     fun isMatch(from: Block, to: String): Boolean {
         var result = false
         if (this.from != null) result = this.from.isMatch(from)
-        if (this.to != null) result = this.to.type == to
+        if (this.to != null) result = (this.to.type == to) && result
         return result
     }
 
@@ -178,11 +178,11 @@ data class BlockInfo(
     fun isMatch(block: Block): Boolean {
         if (this == EMPTY) return false
         return x?.let { block.x in it } ?: true
-               && y?.let { block.y in it } ?: true
-               && z?.let { block.z in it } ?: true
-               && type?.let { block.blockData.material.key.toString() == it } ?: true
-               && biome?.let { block.biome.key.toString() == it } ?: true
-               && world?.let { block.world.key.toString() == it } ?: true
+                && y?.let { block.y in it } ?: true
+                && z?.let { block.z in it } ?: true
+                && type?.let { block.blockData.material.key.toString() == it } ?: true
+                && biome?.let { block.biome.key.toString() == it } ?: true
+                && world?.let { block.world.key.toString() == it } ?: true
     }
 
     override fun serialization(): SerializeElement {

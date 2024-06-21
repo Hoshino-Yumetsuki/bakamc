@@ -17,15 +17,27 @@ import cn.bakamc.folia.service.PlayerService
 import cn.bakamc.folia.util.Style
 import cn.bakamc.folia.util.launch
 import cn.bakamc.folia.util.literalText
+import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import moe.forpleuvoir.nebula.common.color.Color
 import net.milkbowl.vault.economy.EconomyResponse
 import org.bukkit.entity.Player
 
-
 @Suppress("FunctionName")
 internal fun FlyCommand(): Command = Command("fly") {
     execute<Player>(toggleFly)
+    literal("info") {
+        argument("player") {
+            suggestions = null
+            execute { ctx ->
+                ctx.getArg("player")!!.let { name ->
+                    ctx.sender.server.onlinePlayers.find { it.name == name }?.let { player ->
+                        ctx.success("{}飞行状态[{}],飞行能量[{}]", player, player.allowFlight, player.energy)
+                    }
+                }
+            }
+        }
+    }
     literal("enable") {
         execute<Player>(toggleFly)
         argument("enabled") {
@@ -45,7 +57,7 @@ internal fun FlyCommand(): Command = Command("fly") {
         argument("player") {
             suggestions = null
             argument("energy") {
-                execute<Player> { ctx ->
+                execute { ctx ->
                     val energy = ctx.getArg("energy")?.toDouble() ?: 0.0
                     runBlocking {
                         ctx.getArg("player")!!.let { name ->
@@ -65,13 +77,16 @@ internal fun FlyCommand(): Command = Command("fly") {
         argument("player") {
             suggestions = null
             argument("energy") {
-                execute<Player> { ctx ->
+                execute { ctx ->
                     val energy = ctx.getArg("energy")?.toDouble() ?: 0.0
                     runBlocking {
                         ctx.getArg("player")!!.let { name ->
                             ctx.sender.server.onlinePlayers.find { it.name == name }?.let { player ->
-                                player.updateEnergy(player.energy + energy)
-                                ctx.success("成功为玩家{}添加[{}]飞行能量", player, energy)
+                                async {
+                                    player.updateEnergy(player.energy + energy)
+                                }.await().let {
+                                    ctx.success("成功为玩家{}添加[{}]飞行能量", player, energy)
+                                }
                             }
                         }
                     }
@@ -83,11 +98,11 @@ internal fun FlyCommand(): Command = Command("fly") {
     literal("addAll") {
         permission { it.sender.isOp }
         argument("energy") {
-            execute<Player> { ctx ->
+            execute { ctx ->
                 val energy = ctx.getArg("energy")?.toDouble() ?: 0.0
                 runBlocking {
-                    val count = PlayerService.addAllPlayerEnergy(energy, 0.0..MAX_ENERGY)
-                    ctx.success("成功为{}位玩家添加了{}飞行能量", count, energy)
+                    val count = async { PlayerService.addAllPlayerEnergy(energy, 0.0..MAX_ENERGY) }
+                    ctx.success("成功为{}位玩家添加了{}飞行能量", count.await(), energy)
                 }
             }
         }
@@ -95,12 +110,10 @@ internal fun FlyCommand(): Command = Command("fly") {
     literal("addOnlinePlayer") {
         permission { it.sender.isOp }
         argument("energy") {
-            execute<Player> { ctx ->
+            execute { ctx ->
                 val energy = ctx.getArg("energy")?.toDouble() ?: 0.0
-                runBlocking {
-                    val count = FlightEnergyManager.addAllOnlinePlayerEnergy(energy, 0.0..MAX_ENERGY)
-                    ctx.success("成功为{}位在线玩家添加了{}飞行能量", count, energy)
-                }
+                val count = FlightEnergyManager.addAllOnlinePlayerEnergy(energy, 0.0..MAX_ENERGY)
+                ctx.success("成功为{}位在线玩家添加了{}飞行能量", count, energy)
             }
         }
     }
@@ -111,7 +124,7 @@ internal fun FlyCommand(): Command = Command("fly") {
             suggestionBuild { ctx, _ ->
                 val price = PRICE
                 val energy = ctx.getArg("energy")!!.toDouble()
-                listOf("§6每1游戏币可以购买§a[${price}]§6飞行能量,当前购买所需货币§a[${energy * price}]§6,当前持有货币§a[${(ctx.sender as Player).money}]")
+                listOf("§6每1游戏币可以购买§a[${1 / price}]§6飞行能量,当前购买所需货币§a[${energy * price}]§6,当前持有货币§a[${(ctx.sender as Player).money}]")
             }
             execute<Player>(recharge)
         }

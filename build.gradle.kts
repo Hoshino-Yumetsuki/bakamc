@@ -24,11 +24,11 @@ repositories {
 dependencies {
     implementation(kotlin("reflect"))
     implementation(kotlin("stdlib"))
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
 
     paperweight.foliaDevBundle("1.20.4-R0.1-SNAPSHOT")
 
-    api("moe.forpleuvoir:nebula:0.2.8f") {
+    api("moe.forpleuvoir:nebula:0.2.9a") {
         exclude("moe.forpleuvoir", "nebula-event")
     }
 
@@ -47,7 +47,7 @@ dependencies {
 }
 
 group = "cn.bakamc"
-version = "0.1.4b"
+version = "0.1.4g"
 description = "这是什么插件"
 
 sourceSets {
