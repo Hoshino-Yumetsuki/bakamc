@@ -31,11 +31,11 @@ class BakaMCPlugin : JavaPlugin() {
 
     override fun onEnable() {
         instance = this
-        PluginScope = CoroutineScope(Dispatchers.IO)
+        PluginScope = CoroutineScope(Dispatchers.Default)
         logger.info("BakaMCPlugin loading...")
         if (setupEconomy()) {
             logger.info("BakaMCPlugin 找到经济插件")
-        }else{
+        } else {
             logger.warning("BakaMCPlugin 未找到经济插件")
         }
 
