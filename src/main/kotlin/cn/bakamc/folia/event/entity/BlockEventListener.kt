@@ -5,7 +5,9 @@ import cn.bakamc.folia.config.Configs.Misc.ENABLE_ANVIL_CUSTOM_RENAME
 import cn.bakamc.folia.util.literalText
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
+import moe.forpleuvoir.nebula.common.color.HSVColor
 import moe.forpleuvoir.nebula.common.pick
+import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.network.chat.Style
 import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack
@@ -21,10 +23,10 @@ object BlockEventListener : Listener {
             event.result?.let { itemStack ->
                 val stack = CraftItemStack.asNMSCopy(itemStack)
                 val displayName = stack.hoverName.string
-                val styles = ArrayList<List<(Style) -> Style>>()
                 val regex = Regex("&\\{.*?}")
-                val text: MutableComponent = literalText("")
-                if (regex.containsMatchIn(displayName)) {
+                if (event.inventory.renameText != null && regex.containsMatchIn(displayName)) {
+                    val styles = ArrayList<List<(Style) -> Style>>()
+                    val text: MutableComponent = literalText("")
                     displayName.replace(regex) { result ->
                         val value = result.value
                         val list = mutableListOf<(Style) -> Style>()
@@ -59,13 +61,29 @@ object BlockEventListener : Listener {
                             }
                             ANVIL_RENAME_STYLE_MAPPING["rest"]?.let {
                                 if (cs in it) {
-                                    list.add { style -> style.withBold(false).withStrikethrough(false).withUnderlined(false).withItalic(false).withColor(Colors.WHITE.rgb) }
+                                    list.add { style ->
+                                        style.withBold(false).withStrikethrough(false).withUnderlined(false).withItalic(false).withColor(Colors.WHITE.rgb)
+                                    }
                                 }
                             }
 
+                            if (s.startsWith("@") && s.length == 2) {
+                                list.add { style ->
+                                    ChatFormatting.getByCode(s[1])?.let { cf ->
+                                        style.applyFormat(cf)
+                                    } ?: style
+                                }
+                            }
+                            //&{#FF66CC}
                             if (s.matches(Regex("#[0-9A-Fa-f]{6}")) && s.length == 7) {
                                 list.add { style -> style.withColor(Color(s).rgb) }
                             }
+                            //&{[360 100 20]}
+                            if (s.matches(Regex("\\[((360|3[0-5][0-9]|2\\d{2}|1\\d{2}|\\d{1,2})(\\.\\d+)?) \\s*((100|[1-9]?\\d)(\\.\\d+)?) \\s*((100|[1-9]?\\d)(\\.\\d+)?)]"))) {
+                                val hsv = s.substring(1, s.length - 1).split(' ').map { it.toFloat() }
+                                list.add { style -> style.withColor(HSVColor(hsv[0], hsv[1] / 100f, hsv[2] / 100f).rgb) }
+                            }
+                            //&{[360 99.6 20]->[360 20 100]}test
                         }
                         styles.add(list)
                         value
@@ -80,7 +98,6 @@ object BlockEventListener : Listener {
                                 s1
                             })
                         }
-
                     }
                     stack.setHoverName(text)
                     event.result = CraftItemStack.asBukkitCopy(stack)
