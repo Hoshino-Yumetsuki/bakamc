@@ -8,19 +8,19 @@ import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 
-class ConfigStringDoubleMap(
+class ConfigStringLong(
     override val key: String,
-    defaultValue: Map<String, Double>
-) : ConfigBase<MutableMap<String, Double>, ConfigStringDoubleMap>(), ConfigMutableMapValue<String, Double> {
+    defaultValue: Map<String, Long>
+) : ConfigBase<MutableMap<String, Long>, ConfigStringLong>(), ConfigMutableMapValue<String, Long> {
 
-    override val defaultValue: MutableMap<String, Double> = LinkedHashMap(defaultValue)
+    override val defaultValue: MutableMap<String, Long> = LinkedHashMap(defaultValue)
 
-    override var configValue: MutableMap<String, Double> = map(this.defaultValue)
+    override var configValue: MutableMap<String, Long> = map(this.defaultValue)
 
-    private fun map(map: Map<String, Double>): NotifiableLinkedHashMap<String, Double> {
+    private fun map(map: Map<String, Long>): NotifiableLinkedHashMap<String, Long> {
         return NotifiableLinkedHashMap(map).apply {
             subscribe {
-                this@ConfigStringDoubleMap.onChange(this@ConfigStringDoubleMap)
+                this@ConfigStringLong.onChange(this@ConfigStringLong)
             }
         }
     }
@@ -37,8 +37,8 @@ class ConfigStringDoubleMap(
     override fun deserialization(serializeElement: SerializeElement) {
         configValue = serializeElement.checkType {
             check<SerializeObject> {
-                this@ConfigStringDoubleMap.map(it.mapValues { (_, value) ->
-                    value.asDouble
+                this@ConfigStringLong.map(it.mapValues { (_, value) ->
+                    value.asLong
                 })
             }
         }.getOrThrow()

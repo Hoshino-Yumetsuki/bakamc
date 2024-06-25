@@ -1,5 +1,6 @@
 package cn.bakamc.folia.event.entity
 
+import cn.bakamc.folia.config.Configs.Misc.ANVIL_RENAME_LEGACY_FORMATTING
 import cn.bakamc.folia.config.Configs.Misc.ANVIL_RENAME_STYLE_MAPPING
 import cn.bakamc.folia.config.Configs.Misc.ENABLE_ANVIL_CUSTOM_RENAME
 import cn.bakamc.folia.util.gradientColor
@@ -88,11 +89,11 @@ object BlockEventListener : Listener {
 
                             if (s.startsWith("$") && s.length == 2) {
                                 list.add { text ->
-                                    text.withStyle { style ->
-                                        ChatFormatting.getByCode(s[1])?.let { cf ->
-                                            style.applyFormat(cf)
-                                        } ?: style
-                                    }
+                                    if (s[1] in ANVIL_RENAME_LEGACY_FORMATTING) {
+                                        text.withStyle { style ->
+                                            style.applyFormat(ChatFormatting.getByCode(s[1])!!)
+                                        }
+                                    } else text
                                 }
                             }
                             //&{#FF66CC}
@@ -152,6 +153,5 @@ object BlockEventListener : Listener {
                 }
             }
     }
-
 
 }

@@ -21,8 +21,9 @@ class BakaMCPlugin : JavaPlugin() {
         lateinit var instance: BakaMCPlugin
             private set
 
-        internal lateinit var PluginScope: CoroutineScope
-            private set
+        internal val PluginDefaultScope: CoroutineScope = CoroutineScope(Dispatchers.Default)
+
+        internal val PluginIOScope: CoroutineScope = CoroutineScope(Dispatchers.IO)
     }
 
     lateinit var economy: Economy
@@ -31,7 +32,6 @@ class BakaMCPlugin : JavaPlugin() {
 
     override fun onEnable() {
         instance = this
-        PluginScope = CoroutineScope(Dispatchers.Default)
         logger.info("BakaMCPlugin loading...")
         if (setupEconomy()) {
             logger.info("BakaMCPlugin 找到经济插件")
@@ -85,7 +85,8 @@ class BakaMCPlugin : JavaPlugin() {
         server.asyncScheduler.cancelTasks(this)
         FlightEnergyManager.onDisable()
         SpecialItemManager.onDisable()
-        PluginScope.cancel()
+        PluginDefaultScope.cancel()
+        PluginIOScope.cancel()
     }
 
 }

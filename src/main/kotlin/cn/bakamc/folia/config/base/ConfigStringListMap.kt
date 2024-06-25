@@ -5,6 +5,8 @@ import moe.forpleuvoir.nebula.common.util.NotifiableLinkedHashMap
 import moe.forpleuvoir.nebula.config.ConfigBase
 import moe.forpleuvoir.nebula.config.item.ConfigMutableMapValue
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
+import moe.forpleuvoir.nebula.serialization.base.SerializeObject
+import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 
 class ConfigStringListMap(
@@ -45,10 +47,12 @@ class ConfigStringListMap(
         serializeObject(configValue)
 
     override fun deserialization(serializeElement: SerializeElement) {
-        serializeElement.asObject.apply {
-            configValue = this@ConfigStringListMap.map(this.mapValues { (_, value) ->
-                notifiableList(value.asArray.map { it.asString })
-            })
-        }
+        configValue = serializeElement.checkType {
+            check<SerializeObject> {
+                this@ConfigStringListMap.map(it.mapValues { (_, value) ->
+                    notifiableList(value.asArray.map { it.asString })
+                })
+            }
+        }.getOrThrow()
     }
 }

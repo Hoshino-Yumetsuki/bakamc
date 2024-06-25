@@ -3,17 +3,13 @@ package cn.bakamc.folia.event.entity
 import cn.bakamc.folia.config.Configs
 import cn.bakamc.folia.flight_energy.FlightEnergyManager
 import cn.bakamc.folia.service.PlayerService
-import cn.bakamc.folia.util.launch
+import cn.bakamc.folia.util.asNMS
+import cn.bakamc.folia.util.ioLaunch
 import cn.bakamc.folia.util.logger
-import net.kyori.adventure.text.Component
-import org.bukkit.Bukkit
-import org.bukkit.Material
-import org.bukkit.block.ShulkerBox
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.*
-import org.bukkit.inventory.meta.BlockStateMeta
 
 object PlayerEventListener : Listener {
 
@@ -22,7 +18,7 @@ object PlayerEventListener : Listener {
         if (!Configs.Misc.ENABLE_PLAYER_JOIN_MESSAGE) {
             event.joinMessage(null)
         }
-        launch {
+        ioLaunch {
             runCatching {
                 PlayerService.insertOrUpdate(event.player)
                 FlightEnergyManager.onPlayerJoin(event.player)
@@ -40,7 +36,7 @@ object PlayerEventListener : Listener {
         if (!Configs.Misc.ENABLE_PLAYER_QUIT_MESSAGE) {
             event.quitMessage(null)
         }
-        launch {
+        ioLaunch {
             runCatching {
                 FlightEnergyManager.onPlayerQuit(event.player)
             }.onSuccess {
@@ -63,25 +59,21 @@ object PlayerEventListener : Listener {
         }
     }
 
-//    @EventHandler
-    fun onPlayerUse(event: PlayerInteractEvent) {
-        val player = event.player
-        if (event.action == Action.RIGHT_CLICK_AIR && player.isSneaking) {
-            val shulkerBoxItem =
-                if (player.inventory.itemInMainHand.type == Material.SHULKER_BOX) player.inventory.itemInMainHand
-                else if (player.inventory.itemInOffHand.type == Material.SHULKER_BOX) player.inventory.itemInOffHand else null
-            if (shulkerBoxItem == null) return
-            if (shulkerBoxItem.itemMeta is BlockStateMeta) {
-                val boxMeta = shulkerBoxItem.itemMeta as BlockStateMeta
-                if(boxMeta.blockState is ShulkerBox){
-                    val shulkerBox = boxMeta.blockState as ShulkerBox
-                    val boxInventory = Bukkit.createInventory(null, 27, Component.text("潜影盒"))
-                    boxInventory.contents = shulkerBox.inventory.contents
-                    player.openInventory(boxInventory)
+    private const val _tag = "bakamc_interact"
+
+    @EventHandler
+    fun onPlayerInteractEvent(event: PlayerInteractEvent) {
+        event.item?.let { item ->
+            item.asNMS.tag?.getCompound(_tag)?.let { tag ->
+                event.isCancelled = when (event.action) {
+                    Action.LEFT_CLICK_BLOCK  -> tag.getBoolean("LEFT_CLICK_BLOCK")
+                    Action.RIGHT_CLICK_BLOCK -> tag.getBoolean("RIGHT_CLICK_BLOCK")
+                    Action.LEFT_CLICK_AIR    -> tag.getBoolean("LEFT_CLICK_AIR")
+                    Action.RIGHT_CLICK_AIR   -> tag.getBoolean("RIGHT_CLICK_AIR")
+                    Action.PHYSICAL          -> tag.getBoolean("PHYSICAL")
                 }
             }
         }
-
     }
 
 }

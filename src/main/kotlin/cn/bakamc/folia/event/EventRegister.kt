@@ -4,6 +4,7 @@ import cn.bakamc.folia.BakaMCPlugin
 import cn.bakamc.folia.event.entity.BlockEventListener
 import cn.bakamc.folia.event.entity.EntityChangedBlockEventListener
 import cn.bakamc.folia.event.entity.PlayerEventListener
+import cn.bakamc.folia.event.entity.ServerEventListener
 import cn.bakamc.folia.flight_energy.FlightEnergyManager
 import org.bukkit.event.Listener
 import org.bukkit.plugin.PluginManager
@@ -16,6 +17,7 @@ private val registrationList = listOf(
     FlightEnergyManager,
     PlayerEventListener,
     BlockEventListener,
+    ServerEventListener
 )
 
 fun JavaPlugin.registerEvent() {

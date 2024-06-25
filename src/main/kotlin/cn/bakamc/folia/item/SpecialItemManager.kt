@@ -1,10 +1,13 @@
 package cn.bakamc.folia.item
 
 import cn.bakamc.folia.db.table.SpecialItem
+import cn.bakamc.folia.db.table.isMatch
 import cn.bakamc.folia.service.SpecialItemService
-import cn.bakamc.folia.util.launch
+import cn.bakamc.folia.util.asNMS
+import cn.bakamc.folia.util.ioLaunch
 import cn.bakamc.folia.util.logger
 import moe.forpleuvoir.nebula.common.api.Initializable
+import org.bukkit.inventory.ItemStack
 import java.util.concurrent.ConcurrentHashMap
 
 object SpecialItemManager : Initializable {
@@ -13,7 +16,7 @@ object SpecialItemManager : Initializable {
 
     override fun init() {
         itemCache.clear()
-        launch {
+        ioLaunch {
             SpecialItemService.getSpecialItems().forEach {
                 itemCache[it.key] = it
             }
@@ -28,7 +31,7 @@ object SpecialItemManager : Initializable {
     fun getCachedItem(key: String): SpecialItem? {
         return itemCache[key].apply {
             if (this == null) {
-                launch {
+                ioLaunch {
                     SpecialItemService.getItemByKey(key)?.let {
                         itemCache[it.key] = it
                     }
@@ -53,6 +56,14 @@ object SpecialItemManager : Initializable {
         return SpecialItemService.delete(key).takeIf { it > 0 }?.let {
             itemCache.remove(key)
         }
+    }
+
+    fun isSpecialItem(item: ItemStack): Boolean {
+        return itemCache.values.any { it.isMatch(item.asNMS) }
+    }
+
+    fun isSpecialItem(item: net.minecraft.world.item.ItemStack): Boolean {
+        return itemCache.values.any { it.isMatch(item) }
     }
 
     fun specifyType(keys: Set<String>): Map<String, SpecialItem> {

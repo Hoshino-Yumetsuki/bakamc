@@ -16,7 +16,11 @@ fun MiscCommand(): Command = Command("bakamc") {
             }
         }
     }
-
+    literal("test") {
+        execute {
+            it.feedback("bakamc test!")
+        }
+    }
 //    literal("world") {
 //        execute<Player> {
 //            val text = literalText(it.sender.world.key.toString())

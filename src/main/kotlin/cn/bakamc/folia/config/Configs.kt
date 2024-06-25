@@ -1,9 +1,6 @@
 package cn.bakamc.folia.config
 
-import cn.bakamc.folia.config.base.ConfigBlockInfos
-import cn.bakamc.folia.config.base.ConfigEntityInfos
-import cn.bakamc.folia.config.base.ConfigStringDoubleMap
-import cn.bakamc.folia.config.base.ConfigStringListMap
+import cn.bakamc.folia.config.base.*
 import cn.bakamc.folia.event.entity.BlockInfo
 import cn.bakamc.folia.event.entity.EntityInfo
 import cn.bakamc.folia.util.logger
@@ -94,6 +91,14 @@ object Configs : ConfigManagerImpl("bakamc") {
         val ENABLE_PLAYER_QUIT_MESSAGE by ConfigBoolean("enable_player_quit_message", true)
 
         val ENABLE_ANVIL_CUSTOM_RENAME by ConfigBoolean("enable_anvil_custom_rename", true)
+
+        val SERVER_START_COMMAND by ConfigStringLong(
+            "server_start_command", mapOf(
+                "bakamc test" to 100
+            )
+        )
+
+        val ANVIL_RENAME_LEGACY_FORMATTING by ConfigString("anvil_rename_level", "0123456789abcdefklmonr")
 
         val ANVIL_RENAME_STYLE_MAPPING by ConfigStringListMap(
             key = "anvil_rename_style_mapping",

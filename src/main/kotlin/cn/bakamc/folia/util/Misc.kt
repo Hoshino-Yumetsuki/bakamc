@@ -3,7 +3,8 @@
 package cn.bakamc.folia.util
 
 import cn.bakamc.folia.BakaMCPlugin
-import cn.bakamc.folia.BakaMCPlugin.Companion.PluginScope
+import cn.bakamc.folia.BakaMCPlugin.Companion.PluginDefaultScope
+import cn.bakamc.folia.BakaMCPlugin.Companion.PluginIOScope
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask
 import kotlinx.coroutines.*
 import moe.forpleuvoir.nebula.common.color.Color
@@ -15,7 +16,9 @@ import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
 import moe.forpleuvoir.nebula.serialization.extensions.serializeArray
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import net.minecraft.nbt.*
+import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack
 import org.bukkit.entity.Entity
+import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.Plugin
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
@@ -37,14 +40,27 @@ internal fun launch(
     context: CoroutineContext = EmptyCoroutineContext,
     start: CoroutineStart = CoroutineStart.DEFAULT,
     block: suspend CoroutineScope.() -> Unit
-): Job = PluginScope.launch(context, start, block)
+): Job = PluginDefaultScope.launch(context, start, block)
 
 
 internal fun <T> async(
     context: CoroutineContext = EmptyCoroutineContext,
     start: CoroutineStart = CoroutineStart.DEFAULT,
     block: suspend CoroutineScope.() -> T
-): Deferred<T> = PluginScope.async(context, start, block)
+): Deferred<T> = PluginDefaultScope.async(context, start, block)
+
+internal fun ioLaunch(
+    context: CoroutineContext = EmptyCoroutineContext,
+    start: CoroutineStart = CoroutineStart.DEFAULT,
+    block: suspend CoroutineScope.() -> Unit
+): Job = PluginIOScope.launch(context, start, block)
+
+
+internal fun <T> ioAsync(
+    context: CoroutineContext = EmptyCoroutineContext,
+    start: CoroutineStart = CoroutineStart.DEFAULT,
+    block: suspend CoroutineScope.() -> T
+): Deferred<T> = PluginIOScope.async(context, start, block)
 
 
 fun runNow(plugin: Plugin, action: (ScheduledTask) -> Unit) {
@@ -129,6 +145,25 @@ fun Tag.toSerializerElement(): SerializeElement {
         is CompoundTag            -> toSerializerObjet()
         else                      -> SerializeNull
     }
+}
+
+val ItemStack.asNMS
+    get() = CraftItemStack.asNMSCopy(this)
+
+fun ItemStack.hasTag(tagName: String): Boolean {
+    val itemStack = this.asNMS
+    itemStack.tag?.let { tag ->
+        return tag.contains(tagName)
+    }
+    return false
+}
+
+fun ItemStack.getTagAsString(tagName: String): String {
+    val itemStack = this.asNMS
+    itemStack.tag?.let { tag ->
+        return tag.getString(tagName)
+    }
+    return ""
 }
 
 fun gradientHSVColor(start: HSVColor, end: HSVColor, sliceSize: Int): List<HSVColor> {

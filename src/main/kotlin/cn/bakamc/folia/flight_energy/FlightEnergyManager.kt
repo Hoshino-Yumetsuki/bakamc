@@ -165,7 +165,7 @@ object FlightEnergyManager : Listener, Initializable {
     fun onPlayerGameModeChange(player: Player, newGameMode: GameMode) {
         if (newGameMode == GameMode.SURVIVAL) {
             val isFlying = player.isFlying
-            runDelayed(0.1.seconds) {
+            player.execute(1) {
                 player.allowFlight = energyCache[player]!!.enabled
                 if (player.allowFlight) player.isFlying = isFlying
             }
@@ -237,7 +237,7 @@ object FlightEnergyManager : Listener, Initializable {
             }
         }
         onlinePlayers.filter {
-            it.gameMode == GameMode.SURVIVAL && it.gameMode == GameMode.ADVENTURE && it.energy > 0.0 && it.vehicle == null
+            it.gameMode == GameMode.SURVIVAL && it.energy > 0.0 && it.vehicle == null
         }.filter {
             energyBar[it]?.setVisible(it.isFlying)
             it.isFlying
