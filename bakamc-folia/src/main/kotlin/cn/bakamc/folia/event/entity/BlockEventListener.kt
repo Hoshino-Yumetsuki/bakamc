@@ -16,10 +16,8 @@ object BlockEventListener : Listener {
     fun onAnvilRename(event: PrepareAnvilEvent) {
         if (ENABLE_ANVIL_CUSTOM_RENAME)
             event.result?.let { itemStack ->
-                val regex = Regex("&\\{.*?}")
-                val renameText = event.inventory.renameText
-
-                if (renameText != null && regex.containsMatchIn(renameText)) {
+                event.inventory.renameText?.let { renameText ->
+                    if (!BakaText.regex.containsMatchIn(renameText)) return
                     val meta = itemStack.itemMeta
                     val text = BakaText.parse(
                         renameText, listOf(
