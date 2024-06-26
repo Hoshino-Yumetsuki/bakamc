@@ -59,12 +59,12 @@ object PlayerEventListener : Listener {
         }
     }
 
-    private const val _tag = "bakamc_interact"
+    private const val BAKAMC_INTERACT_TAG_NAME = "bakamc_interact"
 
     @EventHandler
     fun onPlayerInteractEvent(event: PlayerInteractEvent) {
         event.item?.let { item ->
-            item.asNMS.tag?.getCompound(_tag)?.let { tag ->
+            item.asNMS.tag?.getCompound(BAKAMC_INTERACT_TAG_NAME)?.let { tag ->
                 event.isCancelled = when (event.action) {
                     Action.LEFT_CLICK_BLOCK  -> tag.getBoolean("LEFT_CLICK_BLOCK")
                     Action.RIGHT_CLICK_BLOCK -> tag.getBoolean("RIGHT_CLICK_BLOCK")
