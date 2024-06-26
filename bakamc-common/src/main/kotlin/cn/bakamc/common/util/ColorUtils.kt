@@ -1,5 +1,6 @@
 package cn.bakamc.common.util
 
+import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.HSVColor
 
@@ -7,8 +8,11 @@ fun HSVColor.gradient(end: HSVColor, sliceSize: Int): List<HSVColor> {
     return gradientHSVColor(this, end, sliceSize)
 }
 
-fun Color.gradient(end: Color, sliceSize: Int): List<Color> {
-    return gradientColor(this, end, sliceSize)
+fun ARGBColor.gradient(end: ARGBColor, sliceSize: Int): List<ARGBColor> {
+    return if (this is HSVColor && end is HSVColor)
+        this.gradient(end, sliceSize)
+    else
+        gradientColor(this, end, sliceSize)
 }
 
 @Suppress("DuplicatedCode")
@@ -32,7 +36,7 @@ fun gradientHSVColor(start: HSVColor, end: HSVColor, sliceSize: Int): List<HSVCo
 }
 
 @Suppress("DuplicatedCode")
-fun gradientColor(start: Color, end: Color, sliceSize: Int): List<Color> {
+fun gradientColor(start: ARGBColor, end: ARGBColor, sliceSize: Int): List<ARGBColor> {
     check(sliceSize > 0) { "slice must be greater than 0" }
     if (sliceSize == 1) return listOf(Color(start.red, start.green, start.blue, start.alpha, false))
     val redSlice = (end.redF - start.redF) / sliceSize

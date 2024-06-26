@@ -1,11 +1,13 @@
 package cn.bakamc.common.text
 
 import cn.bakamc.common.util.gradient
+import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import moe.forpleuvoir.nebula.common.pick
 import net.kyori.adventure.extra.kotlin.style
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.format.TextDecoration
@@ -27,7 +29,7 @@ object BakaText {
         )
     ): Component {
         val modifiers = ArrayList<List<(TextComponent) -> TextComponent>>()
-        val text: TextComponent.Builder = Component.text()
+        val text: TextComponent.Builder = text()
         content.replace(regex) { result ->
             val value = result.value
             val list = mutableListOf<(TextComponent) -> TextComponent>()
@@ -41,9 +43,9 @@ object BakaText {
             modifiers.add(list)
             value
         }.split(regex).toMutableList().let { list ->
-            text.append(Component.text(list[0]))
+            text.append(text(list[0]))
             modifiers.forEachIndexed { index, modifier ->
-                var t = Component.text(list[index + 1])
+                var t = text(list[index + 1])
                 modifier.forEach { m ->
                     t = m.invoke(t)
                 }
@@ -112,19 +114,10 @@ object BakaText {
             }
             //&{#FF66CC->#FF88BB}
             if (exp.matches(Regex("#[0-9A-Fa-f]{6}->#[0-9A-Fa-f]{6}"))) {
-                val (_start, _end) = exp.split("->")
-                val (start, end) = Color(_start) to Color(_end)
+                val (sStart, sEnd) = exp.split("->")
+                val (start, end) = Color(sStart) to Color(sEnd)
                 return { text ->
-                    var t = Component.text("").apply {
-                        applyFallbackStyle(text.style())
-                    }
-                    val c = text.content()
-                    start.gradient(end, c.length).forEachIndexed { index, color ->
-                        t = t.append(Component.text(c[index].toString(), style {
-                            color(TextColor.color(color.rgb))
-                        }))
-                    }
-                    t
+                    gradientText(text.content(), start, end)
                 }
             }
             return null
@@ -138,23 +131,25 @@ object BakaText {
             }
             //&{[360 99.6 20]->[360 20 100]}
             if (exp.matches(Regex("\\[((360|3[0-5][0-9]|2\\d{2}|1\\d{2}|\\d{1,2})(\\.\\d+)?) \\s*((100|[1-9]?\\d)(\\.\\d+)?) \\s*((100|[1-9]?\\d)(\\.\\d+)?)]->\\[((360|3[0-5][0-9]|2\\d{2}|1\\d{2}|\\d{1,2})(\\.\\d+)?) \\s*((100|[1-9]?\\d)(\\.\\d+)?) \\s*((100|[1-9]?\\d)(\\.\\d+)?)]"))) {
-                val (_start, _end) = exp.split("->").map { it -> it.substring(1, it.length - 1).split(" ").map { it.toFloat() } }
-                val (start, end) = HSVColor(_start[0], _start[1] / 100, _start[2] / 100) to HSVColor(_end[0], _end[1] / 100, _end[2] / 100)
+                val (fStart, fEnd) = exp.split("->").map { it -> it.substring(1, it.length - 1).split(" ").map { it.toFloat() } }
+                val (start, end) = HSVColor(fStart[0], fStart[1] / 100, fStart[2] / 100) to HSVColor(fEnd[0], fEnd[1] / 100, fEnd[2] / 100)
                 return { text ->
-                    var t = Component.text("").apply {
-                        applyFallbackStyle(text.style())
-                    }
-                    val c = text.content()
-                    start.gradient(end, c.length).forEachIndexed { index, color ->
-                        t = t.append(Component.text(c[index].toString(), style {
-                            color(TextColor.color(color.rgb))
-                        }))
-                    }
-                    t
+                    gradientText(text.content(), start, end)
                 }
             }
             return null
         }
+
+        private fun <C : ARGBColor> gradientText(content: String, start: C, end: C): TextComponent {
+            return text { build ->
+                start.gradient(end, content.length).forEachIndexed { index, color ->
+                    build.append(text(content[index].toString(), style {
+                        color(TextColor.color(color.rgb))
+                    }))
+                }
+            }
+        }
+
     }
 
     @Suppress("SpellCheckingInspection")
