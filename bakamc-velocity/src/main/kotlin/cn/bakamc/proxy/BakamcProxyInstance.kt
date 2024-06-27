@@ -7,6 +7,7 @@ import cn.bakamc.proxy.event.mirai.GroupEventListener
 import cn.bakamc.proxy.event.velocity.PlayerEventListener
 import com.velocitypowered.api.proxy.ProxyServer
 import kotlinx.coroutines.runBlocking
+import moe.forpleuvoir.nebula.common.ioLaunch
 import org.slf4j.Logger
 import java.nio.file.Path
 import java.util.concurrent.TimeUnit
@@ -53,8 +54,8 @@ object BakamcProxyInstance {
 
     }
 
-    fun reload(){
-        runBlocking {
+    fun reload() {
+        ioLaunch {
             Configs.load()
         }
     }

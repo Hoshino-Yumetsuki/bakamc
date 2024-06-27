@@ -12,9 +12,10 @@ import org.slf4j.Logger;
 import java.nio.file.Path;
 
 @Plugin(
-        id = "bakamc",
+        id = BuildConstants.NAME,
         version = BuildConstants.VERSION,
         authors = {"forpleuvoir"},
+        description = BuildConstants.Description,
         dependencies = {
                 @Dependency(id = "miraimc")
         }

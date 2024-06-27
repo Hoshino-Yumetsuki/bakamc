@@ -11,7 +11,7 @@ import moe.forpleuvoir.nebula.config.item.impl.*
 import moe.forpleuvoir.nebula.config.manager.ConfigManagerImpl
 import moe.forpleuvoir.nebula.config.manager.component.localConfig
 import moe.forpleuvoir.nebula.config.manager.compose
-import moe.forpleuvoir.nebula.config.persistence.JsonConfigManagerPersistence.serializeObjectToString
+import moe.forpleuvoir.nebula.config.persistence.JsonConfigManagerPersistence.serializeToString
 import moe.forpleuvoir.nebula.config.persistence.JsonConfigManagerPersistence.wrapFileName
 import moe.forpleuvoir.nebula.config.persistence.jsonPersistence
 import moe.forpleuvoir.nebula.config.util.ConfigUtil
@@ -30,12 +30,13 @@ object Configs : ConfigManagerImpl("bakamc") {
      * 配置文件路径
      * @param path Path
      */
-    suspend fun init(path: Path) {
+    suspend fun step(path: Path) {
         configPath = path
 
         compose {
             localConfig(configPath, jsonPersistence())
         }
+
 
         backup()
         init()
@@ -51,8 +52,7 @@ object Configs : ConfigManagerImpl("bakamc") {
         }
     }
 
-    @Suppress("RedundantSuspendModifier", "MemberVisibilityCanBePrivate")
-    internal suspend fun backup() {
+    private suspend fun backup() {
         runCatching {
             ConfigUtil.run {
                 val fileName = wrapFileName(this@Configs.key)
@@ -71,13 +71,12 @@ object Configs : ConfigManagerImpl("bakamc") {
     /**
      * 生成当前版本的默认配置文件
      */
-    @Suppress("RedundantSuspendModifier", "MemberVisibilityCanBePrivate")
     internal suspend fun generateTemp() {
         runCatching {
             ConfigUtil.run {
                 val fileName = wrapFileName(this@Configs.key)
                 val file = configFile("$fileName.temp", configPath)
-                writeStringToFile(serializeObjectToString(serialization().asObject), file)
+                writeToFile(serializeToString(serialization().asObject), file)
             }
         }.onFailure {
             logger.error("模板文件生成失败", it)

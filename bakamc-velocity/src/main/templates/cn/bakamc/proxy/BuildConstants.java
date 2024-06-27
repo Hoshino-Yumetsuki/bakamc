@@ -4,4 +4,9 @@ package cn.bakamc.proxy;
 public class BuildConstants {
 
     public static final String VERSION = "${version}";
+
+    public static final String NAME = "${name}";
+
+    public static final String Description = "${description}";
+
 }

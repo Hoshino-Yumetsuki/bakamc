@@ -48,7 +48,7 @@ suspend fun suspendFun2() {
 val DefaultScope = CoroutineScope(Dispatchers.Default)
 
 suspend fun db() {
-    Configs.init(Path.of("./build/config"))
+    Configs.step(Path.of("./build/config"))
 
 
     val players = DefaultScope.async { getAllPlayer() }

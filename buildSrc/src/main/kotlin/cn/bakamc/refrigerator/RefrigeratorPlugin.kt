@@ -2,16 +2,14 @@ package cn.bakamc.refrigerator
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.artifacts.dsl.DependencyHandler
-import org.gradle.kotlin.dsl.DependencyHandlerScope
 import org.gradle.kotlin.dsl.extra
 
 const val BAKAMC: String = "_bakamc"
 
 class RefrigeratorPlugin : Plugin<Project> {
 
-
     override fun apply(project: Project) {
+        applyConfiguration(project)
         project.rootProject.run {
             if (!extra.has(BAKAMC)) {
                 extra[BAKAMC] = BakaMC(this)

@@ -5,13 +5,14 @@ adventureVersion = "4.17.0"
 shadowVersion = "8.1.1"
 kotlinVersion = "2.0.0"
 kotlinCoroutinesVersion = "1.9.0-RC"
-nebulaVersion = "0.2.9b"
+nebulaVersion = "0.2.9d"
 ktormVersion = "3.6.0"
 mysqlVersion = "8.4.0"
 hikariVersion = "5.1.0"
 vaultVersion = "1.7"
 paperUserdevVersion = "1.7.1"
 runTaskVersion = "2.3.0"
+miraiMCVersion = "1.8.3"
 
 [libraries]
 kotlinStdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlinVersion" }
@@ -26,6 +27,7 @@ mysql = { group = "com.mysql", name = "mysql-connector-j", version.ref = "mysqlV
 ktormCore = { group = "org.ktorm", name = "ktorm-core", version.ref = "ktormVersion" }
 ktormMysql = { group = "org.ktorm", name = "ktorm-support-mysql", version.ref = "ktormVersion" }
 hikari = { group = "com.zaxxer", name = "HikariCP", version.ref = "hikariVersion" }
+miraiMCVelocity = { group = "io.github.dreamvoid", name = "MiraiMC-Velocity", version.ref = "miraiMCVersion" }
 
 [bundles]
 ktorm = ["ktormCore", "ktormMysql"]

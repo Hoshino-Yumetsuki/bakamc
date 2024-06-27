@@ -1,5 +1,3 @@
-import cn.bakamc.refrigerator.bakamc
-
 plugins {
     alias(libs.plugins.paperUserdev)
     alias(libs.plugins.runPaper)
@@ -18,17 +16,10 @@ dependencies {
     implementation(libs.hikari)
 }
 
-sourceSets {
-    getByName("test") {
-        kotlin.srcDir("${projectDir}/src/test/kotlin")
-    }
-}
-
 tasks {
 
     runServer {
-        minecraftVersion(bakamc.minecraftVersion)
-        runDirectory(File(projectDir, "run"))
+        minecraftVersion(libs.versions.minecraftVersion.get())
     }
 
     runPaper {
@@ -51,11 +42,5 @@ tasks {
         filesMatching("plugin.yml") {
             expand(props)
         }
-    }
-}
-
-sourceSets {
-    getByName("test") {
-        kotlin.srcDir("${projectDir}src/test/kotlin")
     }
 }

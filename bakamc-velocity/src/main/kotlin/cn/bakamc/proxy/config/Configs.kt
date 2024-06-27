@@ -1,6 +1,7 @@
 package cn.bakamc.proxy.config
 
 import cn.bakamc.proxy.BakamcProxyInstance.logger
+import cn.bakamc.proxy.BuildConstants
 import cn.bakamc.proxy.feature.ip_restrict.IpRestrictConfigs
 import cn.bakamc.proxy.feature.white_list.WhiteListConfigs
 import moe.forpleuvoir.nebula.config.container.ConfigContainerImpl
@@ -14,7 +15,7 @@ import moe.forpleuvoir.nebula.config.persistence.jsonPersistence
 import moe.forpleuvoir.nebula.config.util.ConfigUtil
 import java.nio.file.Path
 
-object Configs : ConfigManagerImpl("bakamc") {
+object Configs : ConfigManagerImpl(BuildConstants.NAME) {
 
     lateinit var configPath: Path
         internal set
@@ -44,8 +45,7 @@ object Configs : ConfigManagerImpl("bakamc") {
         }
     }
 
-    @Suppress("RedundantSuspendModifier", "MemberVisibilityCanBePrivate")
-    internal suspend fun backup() {
+    private suspend fun backup() {
         runCatching {
             ConfigUtil.run {
                 val fileName = wrapFileName(this@Configs.key)

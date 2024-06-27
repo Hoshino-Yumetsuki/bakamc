@@ -43,16 +43,13 @@ subprojects {
 
     tasks {
 
-        test {
-            useJUnitPlatform()
-        }
-
         withType<JavaCompile>().configureEach {
             this.options.release.set(21)
             this.options.encoding = "UTF-8"
             targetCompatibility = JavaVersion.VERSION_21.toString()
             sourceCompatibility = JavaVersion.VERSION_21.toString()
         }
+
     }
 
 }

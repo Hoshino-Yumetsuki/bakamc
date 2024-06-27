@@ -49,7 +49,7 @@ class BakaMCPlugin : JavaPlugin() {
         }
 
         runBlocking {
-            Configs.init(dataFolder.toPath())
+            Configs.step(dataFolder.toPath())
         }
 
         registerCommand()

@@ -1,27 +1,9 @@
-@file:Suppress("VulnerableLibrariesLocal")
-
-import cn.bakamc.refrigerator.bakamc
+import cn.bakamc.refrigerator.bakaImplementation
+import cn.bakamc.refrigerator.bakaRuntimeOnly
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     alias(libs.plugins.runVelocity)
-}
-
-val pluginJar: Configuration by configurations.creating {
-    extendsFrom(configurations.implementation.get())
-}
-
-val pluginJarRuntime: Configuration by configurations.creating {
-    extendsFrom(configurations.runtimeOnly.get())
-}
-
-configurations {
-    compileClasspath {
-        extendsFrom(pluginJar)
-    }
-    runtimeClasspath {
-        extendsFrom(pluginJarRuntime)
-    }
 }
 
 dependencies {
@@ -30,52 +12,58 @@ dependencies {
 
     compileOnly("io.github.dreamvoid:MiraiMC-Integration:1.8.3")
 
-    pluginJar(project(":bakamc-common")) {
-        isTransitive = false
-    }
+    bakaImplementation(project(":bakamc-common"))
 
-    pluginJar(libs.nebula) {
+    bakaImplementation(libs.nebula) {
         exclude("moe.forpleuvoir", "nebula-event")
         exclude("com.google.code.gson", "gson")
     }
-    pluginJar(libs.kotlinCoroutines)
 
-    pluginJarRuntime(libs.mysql)
-    pluginJar(libs.bundles.ktorm)
-    pluginJar(libs.hikari)
+    bakaImplementation(libs.kotlinCoroutines)
+
+    bakaRuntimeOnly(libs.mysql)
+    bakaImplementation(libs.bundles.ktorm)
+    bakaImplementation(libs.hikari)
 
     testImplementation(kotlin("test"))
     testImplementation(libs.nebula)
     testImplementation(libs.kotlinCoroutines)
 }
 
+
 tasks {
 
     runVelocity {
         velocityVersion(libs.versions.velocityVersion.get())
+        downloadPlugins {
+            github("DreamVoid", "MiraiMC", "v${libs.versions.miraiMCVersion.get()}", "MiraiMC-Velocity.jar")
+        }
     }
 
-    register<ShadowJar>("pluginJar") {
+    named<ShadowJar>("shadowJar") {
         archiveBaseName.set(project.name)
         from(sourceSets["main"].output)
         configurations = listOf(
-            project.configurations["pluginJar"],
-            project.configurations["pluginJarRuntime"]
+            bakaImplementation,
+            bakaRuntimeOnly
         )
         exclude("org/intellij/**")
         exclude("org/jetbrains/**")
         exclude("META-INF/com.android.tools/**")
     }
 
+
 }
 
-val templateSource = file("${project.projectDir}/src/main/templates")
+val templateSource = file("${projectDir}/src/main/templates")
 
-val templateDest: Provider<Directory> = layout.buildDirectory.dir("${project.projectDir}/generated/sources/templates")
+val templateDest: Provider<Directory> = layout.buildDirectory.dir("${projectDir}/generated/sources/templates")
 
 val generateTemplates by tasks.registering(Copy::class) {
     val props = mapOf(
-        "version" to project.version
+        "version" to project.version,
+        "name" to project.name,
+        "description" to project.description
     )
     inputs.properties(props)
 
