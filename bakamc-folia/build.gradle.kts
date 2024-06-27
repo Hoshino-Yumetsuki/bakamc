@@ -1,42 +1,26 @@
 import cn.bakamc.refrigerator.bakamc
 
 plugins {
-    id("io.papermc.paperweight.userdev") version "1.7.1"
-    id("xyz.jpenilla.run-paper") version "2.3.0" // Adds runServer and runMojangMappedServer tasks for testing
-}
-
-group = bakamc.group
-version = bakamc.version
-description = bakamc.description
-
-repositories {
-    mavenCentral()
-    mavenLocal()
-    maven { url = uri("https://jitpack.io") }
+    alias(libs.plugins.paperUserdev)
+    alias(libs.plugins.runPaper)
 }
 
 dependencies {
     implementation(project(":bakamc-common"))
 
-    paperweight.foliaDevBundle("${bakamc.minecraftVersion}-R0.1-SNAPSHOT")
+    paperweight.foliaDevBundle("${libs.versions.minecraftVersion.get()}-R0.1-SNAPSHOT")
 
-    compileOnly("com.github.MilkBowl:VaultAPI:1.7") {
-        isTransitive = false
-    }
+    compileOnly(libs.vaultApi) { isTransitive = false }
 
     //data base
-    @Suppress("REDUNDANT_LABEL_WARNING")
-    database@ apply {
-        runtimeOnly("com.mysql:mysql-connector-j:${bakamc.mysqlVersion}")
-        implementation("org.ktorm:ktorm-core:${bakamc.ktormVersion}")
-        implementation("org.ktorm:ktorm-support-mysql:${bakamc.ktormVersion}")
-        implementation("com.zaxxer:HikariCP:${bakamc.hikariVersion}")
-    }
+    runtimeOnly(libs.mysql)
+    implementation(libs.bundles.ktorm)
+    implementation(libs.hikari)
 }
 
 sourceSets {
     getByName("test") {
-        kotlin.srcDir("src/test/kotlin")
+        kotlin.srcDir("${projectDir}/src/test/kotlin")
     }
 }
 
@@ -44,7 +28,7 @@ tasks {
 
     runServer {
         minecraftVersion(bakamc.minecraftVersion)
-        runDirectory(File(project.projectDir, "run"))
+        runDirectory(File(projectDir, "run"))
     }
 
     runPaper {
@@ -72,6 +56,6 @@ tasks {
 
 sourceSets {
     getByName("test") {
-        kotlin.srcDir("src/test/kotlin")
+        kotlin.srcDir("${projectDir}src/test/kotlin")
     }
 }

@@ -2,6 +2,8 @@ package cn.bakamc.refrigerator
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.dsl.DependencyHandler
+import org.gradle.kotlin.dsl.DependencyHandlerScope
 import org.gradle.kotlin.dsl.extra
 
 const val BAKAMC: String = "_bakamc"
@@ -23,3 +25,4 @@ class RefrigeratorPlugin : Plugin<Project> {
 }
 
 val Project.bakamc get() = this.rootProject.extra[BAKAMC] as BakaMC
+

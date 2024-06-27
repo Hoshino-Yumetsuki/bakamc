@@ -1,11 +1,12 @@
+import cn.bakamc.refrigerator.bakamc
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 apply(plugin = "cn.bakamc.refrigerator")
 
 plugins {
     java
-    kotlin("jvm") version "2.0.0"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    alias(libs.plugins.kotlin)
+    alias(libs.plugins.shadow)
 }
 
 repositories {
@@ -18,11 +19,16 @@ subprojects {
     apply(plugin = "java")
     apply(plugin = "com.github.johnrengelman.shadow")
 
+    version = bakamc.version
+    group = bakamc.group
+    description = bakamc.description
+
     repositories {
         mavenCentral()
         mavenLocal()
+        maven { url = uri("https://repo.papermc.io/repository/maven-public/") }
         maven { url = uri("https://maven.forpleuvoir.moe/snapshots") }
-        maven { url = uri("https://maven.forpleuvoir.moe/releases") }
+        maven { url = uri("https://jitpack.io") }
     }
 
     java {
