@@ -5,7 +5,7 @@ apply(plugin = "cn.bakamc.refrigerator")
 plugins {
     java
     kotlin("jvm") version "2.0.0"
-    id("com.github.johnrengelman.shadow") version "7.1.2"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 repositories {
@@ -36,8 +36,13 @@ subprojects {
     }
 
     tasks {
+
+        test {
+            useJUnitPlatform()
+        }
+
         withType<JavaCompile>().configureEach {
-            this.options.release
+            this.options.release.set(21)
             this.options.encoding = "UTF-8"
             targetCompatibility = JavaVersion.VERSION_21.toString()
             sourceCompatibility = JavaVersion.VERSION_21.toString()

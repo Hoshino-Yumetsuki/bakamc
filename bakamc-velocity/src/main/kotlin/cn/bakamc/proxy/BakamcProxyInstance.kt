@@ -1,0 +1,69 @@
+package cn.bakamc.proxy
+
+import cn.bakamc.proxy.command.registerCommands
+import cn.bakamc.proxy.config.Configs
+import cn.bakamc.proxy.database.initDataBase
+import cn.bakamc.proxy.event.mirai.GroupEventListener
+import cn.bakamc.proxy.event.velocity.PlayerEventListener
+import com.velocitypowered.api.proxy.ProxyServer
+import kotlinx.coroutines.runBlocking
+import org.slf4j.Logger
+import java.nio.file.Path
+import java.util.concurrent.TimeUnit
+import kotlin.time.Duration
+
+object BakamcProxyInstance {
+
+    lateinit var INSTANCE: BakamcProxy
+        private set
+
+    lateinit var server: ProxyServer
+        private set
+
+    lateinit var logger: Logger
+        private set
+
+    lateinit var dataDirectory: Path
+        private set
+
+
+    @JvmStatic
+    fun init(bakamcProxy: BakamcProxy) {
+        INSTANCE = bakamcProxy
+        server = bakamcProxy.server
+        logger = bakamcProxy.logger
+        dataDirectory = bakamcProxy.dataDirectory
+        runBlocking {
+            Configs.onLoaded {
+                initDataBase()
+            }
+            Configs.init(dataDirectory)
+        }
+        registerEventListener(server)
+        registerCommands(server)
+    }
+
+
+    private fun registerEventListener(server: ProxyServer) {
+        server.eventManager.apply {
+            register(INSTANCE, GroupEventListener)
+            register(INSTANCE, PlayerEventListener)
+            logger.info("事件监听注册完成")
+        }
+
+    }
+
+    fun reload(){
+        runBlocking {
+            Configs.load()
+        }
+    }
+
+    fun runDelayed(delay: Duration, task: () -> Unit) {
+        server.scheduler.buildTask(INSTANCE, task).delay(delay.inWholeMilliseconds, TimeUnit.MILLISECONDS).schedule()
+    }
+
+    fun runTask(task: () -> Unit) {
+        server.scheduler.buildTask(INSTANCE, task).schedule()
+    }
+}
