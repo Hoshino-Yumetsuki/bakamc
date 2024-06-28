@@ -1,8 +1,14 @@
 package cn.bakamc.folia.config
 
+import cn.bakamc.common.config.component.backup
+import cn.bakamc.common.config.component.generateTemp
 import cn.bakamc.common.config.item.ConfigDecorationMapping
+import cn.bakamc.common.config.item.ConfigStringDoubleMap
+import cn.bakamc.common.config.item.ConfigStringListMap
+import cn.bakamc.common.config.item.ConfigStringLongMap
 import cn.bakamc.common.text.BakaText
-import cn.bakamc.folia.config.base.*
+import cn.bakamc.folia.BakaMCPlugin
+import cn.bakamc.folia.config.item.*
 import cn.bakamc.folia.event.entity.BlockInfo
 import cn.bakamc.folia.event.entity.EntityInfo
 import cn.bakamc.folia.util.logger
@@ -10,18 +16,15 @@ import moe.forpleuvoir.nebula.config.container.ConfigContainerImpl
 import moe.forpleuvoir.nebula.config.item.impl.*
 import moe.forpleuvoir.nebula.config.manager.ConfigManagerImpl
 import moe.forpleuvoir.nebula.config.manager.component.localConfig
-import moe.forpleuvoir.nebula.config.manager.compose
-import moe.forpleuvoir.nebula.config.persistence.JsonConfigManagerPersistence.serializeToString
-import moe.forpleuvoir.nebula.config.persistence.JsonConfigManagerPersistence.wrapFileName
+import moe.forpleuvoir.nebula.config.manager.components
 import moe.forpleuvoir.nebula.config.persistence.jsonPersistence
-import moe.forpleuvoir.nebula.config.util.ConfigUtil
 import org.bukkit.boss.BarColor
 import org.bukkit.boss.BarStyle
 import java.nio.file.Path
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
-object Configs : ConfigManagerImpl("bakamc") {
+object Configs : ConfigManagerImpl(BakaMCPlugin.instance.bakaName) {
 
     lateinit var configPath: Path
         internal set
@@ -33,55 +36,21 @@ object Configs : ConfigManagerImpl("bakamc") {
     suspend fun step(path: Path) {
         configPath = path
 
-        compose {
+        components {
             localConfig(configPath, jsonPersistence())
+            backup(configPath, logger)
+            generateTemp(configPath, jsonPersistence(), logger)
         }
 
-
-        backup()
         init()
-        generateTemp()
         runCatching {
             load()
             if (this.needSave) {
                 save()
             }
         }.onFailure {
-            it.printStackTrace()
+            logger.warn(it.message, it)
             forceSave()
-        }
-    }
-
-    private suspend fun backup() {
-        runCatching {
-            ConfigUtil.run {
-                val fileName = wrapFileName(this@Configs.key)
-                val backupFile = configFile("$fileName.backup", configPath)
-                val file = configFile(fileName, configPath)
-                file.copyTo(backupFile, true)
-            }
-        }.onFailure {
-            logger.error("备份配置文件失败", it)
-        }.onSuccess {
-            logger.info("备份配置文件成功")
-        }
-
-    }
-
-    /**
-     * 生成当前版本的默认配置文件
-     */
-    internal suspend fun generateTemp() {
-        runCatching {
-            ConfigUtil.run {
-                val fileName = wrapFileName(this@Configs.key)
-                val file = configFile("$fileName.temp", configPath)
-                writeToFile(serializeToString(serialization().asObject), file)
-            }
-        }.onFailure {
-            logger.error("模板文件生成失败", it)
-        }.onSuccess {
-            logger.info("模板文件生成成功")
         }
     }
 
@@ -93,7 +62,7 @@ object Configs : ConfigManagerImpl("bakamc") {
 
         val ENABLE_ANVIL_CUSTOM_RENAME by ConfigBoolean("enable_anvil_custom_rename", true)
 
-        val SERVER_START_COMMAND by ConfigStringLong(
+        val SERVER_START_COMMAND by ConfigStringLongMap(
             "server_start_command", mapOf(
                 "bakamc test" to 100
             )
@@ -175,7 +144,6 @@ object Configs : ConfigManagerImpl("bakamc") {
         )
 
     }
-
 
     val BLOCK_INFOS by ConfigBlockInfos(
         "block_infos",

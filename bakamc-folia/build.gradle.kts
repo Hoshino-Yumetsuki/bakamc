@@ -16,6 +16,13 @@ dependencies {
     implementation(libs.hikari)
 }
 
+val props = mapOf(
+    "name" to project.name,
+    "version" to project.version,
+    "description" to project.description,
+    "apiVersion" to "1.20"
+)
+
 tasks {
 
     runServer {
@@ -32,15 +39,23 @@ tasks {
 
     processResources {
         filteringCharset = Charsets.UTF_8.name() // We want UTF-8 for everything
-        val props = mapOf(
-            "name" to project.name,
-            "version" to project.version,
-            "description" to project.description,
-            "apiVersion" to "1.20"
-        )
         inputs.properties(props)
         filesMatching("plugin.yml") {
             expand(props)
         }
     }
 }
+
+val templateSource = file("${projectDir}/src/main/templates")
+
+val templateDest: Provider<Directory> = layout.buildDirectory.dir("${projectDir}/generated/sources/templates")
+
+val generateTemplates by tasks.registering(Copy::class) {
+    inputs.properties(props)
+
+    from(templateSource)
+    into(templateDest)
+    expand(props)
+}
+
+sourceSets["main"].java.srcDir(generateTemplates.map { it.outputs })

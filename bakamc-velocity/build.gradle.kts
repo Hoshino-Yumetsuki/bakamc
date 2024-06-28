@@ -6,11 +6,12 @@ plugins {
     alias(libs.plugins.runVelocity)
 }
 
+@Suppress("VulnerableLibrariesLocal")
 dependencies {
     compileOnly(libs.velocityApi)
     annotationProcessor(libs.velocityApi)
 
-    compileOnly("io.github.dreamvoid:MiraiMC-Integration:1.8.3")
+    compileOnly(libs.miraiMCVelocity)
 
     bakaImplementation(project(":bakamc-common"))
 

@@ -1,5 +1,6 @@
 package cn.bakamc.proxy;
 
+import cn.bakamc.common.Bakamc;
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
@@ -7,6 +8,7 @@ import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 import java.nio.file.Path;
@@ -20,7 +22,7 @@ import java.nio.file.Path;
                 @Dependency(id = "miraimc")
         }
 )
-public class BakamcProxy {
+public class BakamcProxy implements Bakamc {
 
     private final ProxyServer server;
     private final Logger logger;
@@ -44,8 +46,21 @@ public class BakamcProxy {
         return server;
     }
 
-    public Logger getLogger() {
+    @Override
+    public @NotNull Logger getLog() {
         return logger;
+    }
+
+    @NotNull
+    @Override
+    public String getBakaName() {
+        return BuildConstants.NAME;
+    }
+
+    @NotNull
+    @Override
+    public String getBakaVersion() {
+        return BuildConstants.VERSION;
     }
 
     public Path getDataDirectory() {

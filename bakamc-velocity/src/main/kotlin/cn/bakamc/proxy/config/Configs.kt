@@ -1,21 +1,20 @@
 package cn.bakamc.proxy.config
 
+import cn.bakamc.common.config.component.backup
+import cn.bakamc.common.config.component.generateTemp
+import cn.bakamc.proxy.BakamcProxyInstance
 import cn.bakamc.proxy.BakamcProxyInstance.logger
-import cn.bakamc.proxy.BuildConstants
 import cn.bakamc.proxy.feature.ip_restrict.IpRestrictConfigs
 import cn.bakamc.proxy.feature.white_list.WhiteListConfigs
 import moe.forpleuvoir.nebula.config.container.ConfigContainerImpl
 import moe.forpleuvoir.nebula.config.item.impl.*
 import moe.forpleuvoir.nebula.config.manager.ConfigManagerImpl
 import moe.forpleuvoir.nebula.config.manager.component.localConfig
-import moe.forpleuvoir.nebula.config.manager.compose
-import moe.forpleuvoir.nebula.config.persistence.JsonConfigManagerPersistence.serializeObjectToString
-import moe.forpleuvoir.nebula.config.persistence.JsonConfigManagerPersistence.wrapFileName
+import moe.forpleuvoir.nebula.config.manager.components
 import moe.forpleuvoir.nebula.config.persistence.jsonPersistence
-import moe.forpleuvoir.nebula.config.util.ConfigUtil
 import java.nio.file.Path
 
-object Configs : ConfigManagerImpl(BuildConstants.NAME) {
+object Configs : ConfigManagerImpl(BakamcProxyInstance.INSTANCE.bakaName) {
 
     lateinit var configPath: Path
         internal set
@@ -27,13 +26,13 @@ object Configs : ConfigManagerImpl(BuildConstants.NAME) {
     suspend fun init(path: Path) {
         configPath = path
 
-        compose {
+        components {
             localConfig(configPath, jsonPersistence())
+            backup(configPath, logger)
+            generateTemp(configPath, jsonPersistence(), logger)
         }
 
-        backup()
         init()
-        generateTemp()
         runCatching {
             load()
             if (this.needSave) {
@@ -42,40 +41,6 @@ object Configs : ConfigManagerImpl(BuildConstants.NAME) {
         }.onFailure {
             it.printStackTrace()
             forceSave()
-        }
-    }
-
-    private suspend fun backup() {
-        runCatching {
-            ConfigUtil.run {
-                val fileName = wrapFileName(this@Configs.key)
-                val backupFile = configFile("$fileName.backup", configPath)
-                val file = configFile(fileName, configPath)
-                file.copyTo(backupFile, true)
-            }
-        }.onFailure {
-            logger.error("备份配置文件失败", it)
-        }.onSuccess {
-            logger.info("备份配置文件成功")
-        }
-
-    }
-
-    /**
-     * 生成当前版本的默认配置文件
-     */
-    @Suppress("RedundantSuspendModifier", "MemberVisibilityCanBePrivate")
-    internal suspend fun generateTemp() {
-        runCatching {
-            ConfigUtil.run {
-                val fileName = wrapFileName(this@Configs.key)
-                val file = configFile("$fileName.temp", configPath)
-                writeStringToFile(serializeObjectToString(serialization().asObject), file)
-            }
-        }.onFailure {
-            logger.error("模板文件生成失败", it)
-        }.onSuccess {
-            logger.info("模板文件生成成功")
         }
     }
 

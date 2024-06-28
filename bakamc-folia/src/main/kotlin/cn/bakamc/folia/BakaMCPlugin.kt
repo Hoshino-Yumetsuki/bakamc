@@ -1,5 +1,6 @@
 package cn.bakamc.folia
 
+import cn.bakamc.common.Bakamc
 import cn.bakamc.folia.command.registerCommand
 import cn.bakamc.folia.config.Configs
 import cn.bakamc.folia.db.initDataBase
@@ -14,8 +15,10 @@ import kotlinx.coroutines.runBlocking
 import net.milkbowl.vault.economy.Economy
 import org.bukkit.plugin.RegisteredServiceProvider
 import org.bukkit.plugin.java.JavaPlugin
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
-class BakaMCPlugin : JavaPlugin() {
+class BakaMCPlugin : JavaPlugin(), Bakamc {
 
     companion object {
         lateinit var instance: BakaMCPlugin
@@ -29,14 +32,20 @@ class BakaMCPlugin : JavaPlugin() {
     lateinit var economy: Economy
         private set
 
+    override val bakaName: String
+        get() = BuildConstants.NAME
+    override val bakaVersion: String
+        get() = BuildConstants.VERSION
+
+    override val log: Logger = LoggerFactory.getLogger(this::class.java)
 
     override fun onEnable() {
         instance = this
-        logger.info("BakaMCPlugin loading...")
+        log.info("BakaMCPlugin loading...")
         if (setupEconomy()) {
-            logger.info("BakaMCPlugin 找到经济插件")
+            log.info("BakaMCPlugin 找到经济插件")
         } else {
-            logger.warning("BakaMCPlugin 未找到经济插件")
+            log.warn("BakaMCPlugin 未找到经济插件")
         }
 
         Configs.onLoaded {
@@ -56,7 +65,7 @@ class BakaMCPlugin : JavaPlugin() {
 
         registerEvent()
 
-        logger.info("BakaMCPlugin is enabled")
+        log.info("BakaMCPlugin is enabled")
     }
 
     fun reload() {
@@ -88,5 +97,6 @@ class BakaMCPlugin : JavaPlugin() {
         PluginDefaultScope.cancel()
         PluginIOScope.cancel()
     }
+
 
 }

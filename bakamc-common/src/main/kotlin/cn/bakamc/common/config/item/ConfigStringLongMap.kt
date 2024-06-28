@@ -1,4 +1,4 @@
-package cn.bakamc.folia.config.base
+package cn.bakamc.common.config.item
 
 import moe.forpleuvoir.nebula.common.util.NotifiableLinkedHashMap
 import moe.forpleuvoir.nebula.config.ConfigBase
@@ -8,10 +8,10 @@ import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 
-class ConfigStringLong(
+class ConfigStringLongMap(
     override val key: String,
     defaultValue: Map<String, Long>
-) : ConfigBase<MutableMap<String, Long>, ConfigStringLong>(), ConfigMutableMapValue<String, Long> {
+) : ConfigBase<MutableMap<String, Long>, ConfigStringLongMap>(), ConfigMutableMapValue<String, Long> {
 
     override val defaultValue: MutableMap<String, Long> = LinkedHashMap(defaultValue)
 
@@ -20,7 +20,7 @@ class ConfigStringLong(
     private fun map(map: Map<String, Long>): NotifiableLinkedHashMap<String, Long> {
         return NotifiableLinkedHashMap(map).apply {
             subscribe {
-                this@ConfigStringLong.onChange(this@ConfigStringLong)
+                this@ConfigStringLongMap.onChange(this@ConfigStringLongMap)
             }
         }
     }
@@ -37,7 +37,7 @@ class ConfigStringLong(
     override fun deserialization(serializeElement: SerializeElement) {
         configValue = serializeElement.checkType {
             check<SerializeObject> {
-                this@ConfigStringLong.map(it.mapValues { (_, value) ->
+                this@ConfigStringLongMap.map(it.mapValues { (_, value) ->
                     value.asLong
                 })
             }

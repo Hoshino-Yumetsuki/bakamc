@@ -18,6 +18,7 @@ import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack
 import org.bukkit.entity.Entity
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.Plugin
+import org.slf4j.Logger
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -27,7 +28,7 @@ internal val bakamc by lazy { BakaMCPlugin.instance }
 
 internal val server by lazy { bakamc.server }
 
-internal val logger by lazy { Logger(BakaMCPlugin.instance.logger) }
+internal val logger:Logger by lazy {BakaMCPlugin.instance.log }
 
 
 internal fun Entity.execute(delay: Long = 1, task: () -> Unit) {

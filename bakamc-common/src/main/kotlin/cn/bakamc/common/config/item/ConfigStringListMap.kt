@@ -1,4 +1,4 @@
-package cn.bakamc.folia.config.base
+package cn.bakamc.common.config.item
 
 import moe.forpleuvoir.nebula.common.util.NotifiableArrayList
 import moe.forpleuvoir.nebula.common.util.NotifiableLinkedHashMap

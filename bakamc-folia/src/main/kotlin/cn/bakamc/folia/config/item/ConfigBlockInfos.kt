@@ -1,25 +1,25 @@
-package cn.bakamc.folia.config.base
+package cn.bakamc.folia.config.item
 
-import cn.bakamc.folia.event.entity.EntityInfo
+import cn.bakamc.folia.event.entity.BlockInfo
 import moe.forpleuvoir.nebula.common.util.NotifiableLinkedHashMap
 import moe.forpleuvoir.nebula.config.ConfigBase
 import moe.forpleuvoir.nebula.config.item.ConfigMutableMapValue
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 
-class ConfigEntityInfos(
+class ConfigBlockInfos(
     override val key: String,
-    defaultValue: Map<String, EntityInfo>
-) : ConfigBase<MutableMap<String, EntityInfo>, ConfigEntityInfos>(), ConfigMutableMapValue<String, EntityInfo> {
+    defaultValue: Map<String, BlockInfo>
+) : ConfigBase<MutableMap<String, BlockInfo>, ConfigBlockInfos>(), ConfigMutableMapValue<String, BlockInfo> {
 
-    override var configValue: MutableMap<String, EntityInfo> = map(defaultValue)
+    override val defaultValue: MutableMap<String, BlockInfo> = LinkedHashMap(defaultValue)
 
-    override val defaultValue: MutableMap<String, EntityInfo> = LinkedHashMap(defaultValue)
+    override var configValue: MutableMap<String, BlockInfo> = map(defaultValue)
 
-    private fun map(map: Map<String, EntityInfo>): NotifiableLinkedHashMap<String, EntityInfo> {
+    private fun map(map: Map<String, BlockInfo>): NotifiableLinkedHashMap<String, BlockInfo> {
         return NotifiableLinkedHashMap(map).apply {
             subscribe {
-                this@ConfigEntityInfos.onChange(this@ConfigEntityInfos)
+                this@ConfigBlockInfos.onChange(this@ConfigBlockInfos)
             }
         }
     }
@@ -34,8 +34,8 @@ class ConfigEntityInfos(
 
     override fun deserialization(serializeElement: SerializeElement) {
         serializeElement.asObject.apply {
-            configValue = this@ConfigEntityInfos.map(this.mapValues { (_, entity) ->
-                EntityInfo.deserialization(entity)
+            configValue = this@ConfigBlockInfos.map(this.mapValues { (_, block) ->
+                BlockInfo.deserialization(block)
             })
         }
     }

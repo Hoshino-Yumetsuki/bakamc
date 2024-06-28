@@ -64,13 +64,16 @@ object PlayerEventListener : Listener {
     @EventHandler
     fun onPlayerInteractEvent(event: PlayerInteractEvent) {
         event.item?.let { item ->
-            item.asNMS.tag?.getCompound(BAKAMC_INTERACT_TAG_NAME)?.let { tag ->
-                event.isCancelled = when (event.action) {
-                    Action.LEFT_CLICK_BLOCK  -> tag.getBoolean("LEFT_CLICK_BLOCK")
-                    Action.RIGHT_CLICK_BLOCK -> tag.getBoolean("RIGHT_CLICK_BLOCK")
-                    Action.LEFT_CLICK_AIR    -> tag.getBoolean("LEFT_CLICK_AIR")
-                    Action.RIGHT_CLICK_AIR   -> tag.getBoolean("RIGHT_CLICK_AIR")
-                    Action.PHYSICAL          -> tag.getBoolean("PHYSICAL")
+            item.asNMS.tag?.getString(BAKAMC_INTERACT_TAG_NAME)?.let { tag ->
+                val list = tag.split(",")
+                when (event.action) {
+                    Action.LEFT_CLICK_BLOCK  -> "LEFT_CLICK_BLOCK" in list
+                    Action.RIGHT_CLICK_BLOCK -> "RIGHT_CLICK_BLOCK" in list
+                    Action.LEFT_CLICK_AIR    -> "LEFT_CLICK_AIR" in list
+                    Action.RIGHT_CLICK_AIR   -> "RIGHT_CLICK_AIR" in list
+                    Action.PHYSICAL          -> "PHYSICAL" in list
+                }.let {
+                    if (it) event.isCancelled = true
                 }
             }
         }

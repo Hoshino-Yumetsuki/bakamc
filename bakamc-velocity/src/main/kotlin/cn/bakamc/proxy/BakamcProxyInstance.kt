@@ -32,7 +32,7 @@ object BakamcProxyInstance {
     fun init(bakamcProxy: BakamcProxy) {
         INSTANCE = bakamcProxy
         server = bakamcProxy.server
-        logger = bakamcProxy.logger
+        logger = bakamcProxy.log
         dataDirectory = bakamcProxy.dataDirectory
         runBlocking {
             Configs.onLoaded {
