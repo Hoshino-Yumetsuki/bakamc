@@ -1,7 +1,7 @@
 package cn.bakamc.folia.event.entity
 
 import cn.bakamc.folia.BakaMCPlugin
-import cn.bakamc.folia.config.Configs.Misc.SERVER_START_COMMAND
+import cn.bakamc.folia.config.MiscConfig.SERVER_START_COMMAND
 import cn.bakamc.folia.util.server
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener

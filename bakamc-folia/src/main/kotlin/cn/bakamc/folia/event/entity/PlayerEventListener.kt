@@ -1,6 +1,7 @@
 package cn.bakamc.folia.event.entity
 
-import cn.bakamc.folia.config.Configs
+import cn.bakamc.folia.config.MiscConfig
+import cn.bakamc.folia.config.MiscConfig.ENABLE_PLAYER_INTERACT_MODIFY
 import cn.bakamc.folia.flight_energy.FlightEnergyManager
 import cn.bakamc.folia.service.PlayerService
 import cn.bakamc.folia.util.asNMS
@@ -15,7 +16,7 @@ object PlayerEventListener : Listener {
 
     @EventHandler
     fun onPlayerJoin(event: PlayerJoinEvent) {
-        if (!Configs.Misc.ENABLE_PLAYER_JOIN_MESSAGE) {
+        if (!MiscConfig.ENABLE_PLAYER_JOIN_MESSAGE) {
             event.joinMessage(null)
         }
         ioLaunch {
@@ -33,7 +34,7 @@ object PlayerEventListener : Listener {
 
     @EventHandler
     fun onPlayerQuit(event: PlayerQuitEvent) {
-        if (!Configs.Misc.ENABLE_PLAYER_QUIT_MESSAGE) {
+        if (!MiscConfig.ENABLE_PLAYER_QUIT_MESSAGE) {
             event.quitMessage(null)
         }
         ioLaunch {
@@ -63,6 +64,7 @@ object PlayerEventListener : Listener {
 
     @EventHandler
     fun onPlayerInteractEvent(event: PlayerInteractEvent) {
+        if (!ENABLE_PLAYER_INTERACT_MODIFY) return
         event.item?.let { item ->
             item.asNMS.tag?.getString(BAKAMC_INTERACT_TAG_NAME)?.let { tag ->
                 val list = tag.split(",")
@@ -72,9 +74,7 @@ object PlayerEventListener : Listener {
                     Action.LEFT_CLICK_AIR    -> "LEFT_CLICK_AIR" in list
                     Action.RIGHT_CLICK_AIR   -> "RIGHT_CLICK_AIR" in list
                     Action.PHYSICAL          -> "PHYSICAL" in list
-                }.let {
-                    if (it) event.isCancelled = true
-                }
+                }.takeIf { it }?.let { event.isCancelled = true }
             }
         }
     }

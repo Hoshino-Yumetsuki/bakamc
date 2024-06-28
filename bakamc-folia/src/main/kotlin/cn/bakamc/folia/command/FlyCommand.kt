@@ -1,9 +1,9 @@
 package cn.bakamc.folia.command
 
 import cn.bakamc.folia.command.base.*
-import cn.bakamc.folia.config.Configs.FlightEnergy.MAX_ENERGY
-import cn.bakamc.folia.config.Configs.FlightEnergy.MONEY_ITEM
-import cn.bakamc.folia.config.Configs.FlightEnergy.PRICE
+import cn.bakamc.folia.config.FlightEnergyConfig.MAX_ENERGY
+import cn.bakamc.folia.config.FlightEnergyConfig.MONEY_ITEM
+import cn.bakamc.folia.config.FlightEnergyConfig.PRICE
 import cn.bakamc.folia.db.table.isMatch
 import cn.bakamc.folia.db.table.toItemStack
 import cn.bakamc.folia.extension.money
@@ -20,8 +20,8 @@ import cn.bakamc.folia.util.literalText
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import moe.forpleuvoir.nebula.common.color.Color
-import net.milkbowl.vault.economy.EconomyResponse
 import org.bukkit.entity.Player
+import net.milkbowl.vault.economy.EconomyResponse.ResponseType.*
 
 @Suppress("FunctionName")
 internal fun FlyCommand(): Command = Command("fly") {
@@ -202,13 +202,14 @@ private val recharge: (CommandContext<out Player>) -> Unit = { ctx ->
                     //执行扣费操作
                     val response = player.withdraw(cost)
                     when (response.type) {
-                        EconomyResponse.ResponseType.SUCCESS         -> launch {
+                        SUCCESS         -> launch {
                             player.updateEnergy(ctx.sender.energy + energy)
                             ctx.success("成功购买{}的能量,当前剩余能量值[{}]", energy, ctx.sender.energy)
                         }
 
-                        EconomyResponse.ResponseType.FAILURE         -> ctx.fail("购买失败[{}]", response.errorMessage)
-                        EconomyResponse.ResponseType.NOT_IMPLEMENTED -> ctx.fail("购买失败,经济插件未加载,请联系服务器管理员")
+                        FAILURE         -> ctx.fail("购买失败[{}]", response.errorMessage)
+                        NOT_IMPLEMENTED -> ctx.fail("购买失败,经济插件未加载,请联系服务器管理员")
+                        else                                         -> ctx.fail("未知错误")
                     }
                 }.onFailure {
                     //出现异常

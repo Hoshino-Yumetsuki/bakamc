@@ -1,10 +1,10 @@
 package cn.bakamc.folia.flight_energy
 
-import cn.bakamc.folia.config.Configs.FlightEnergy.CLOSE_ADVENTURE_PLAYERS_FLYING
-import cn.bakamc.folia.config.Configs.FlightEnergy.ENERGY_COST
-import cn.bakamc.folia.config.Configs.FlightEnergy.MONEY_ITEM
-import cn.bakamc.folia.config.Configs.FlightEnergy.SYNC_PERIOD
-import cn.bakamc.folia.config.Configs.FlightEnergy.TICK_PERIOD
+import cn.bakamc.folia.config.FlightEnergyConfig.CLOSE_ADVENTURE_PLAYERS_FLYING
+import cn.bakamc.folia.config.FlightEnergyConfig.ENERGY_COST
+import cn.bakamc.folia.config.FlightEnergyConfig.MONEY_ITEM
+import cn.bakamc.folia.config.FlightEnergyConfig.SYNC_PERIOD
+import cn.bakamc.folia.config.FlightEnergyConfig.TICK_PERIOD
 import cn.bakamc.folia.db.table.FlightEnergy
 import cn.bakamc.folia.db.table.SpecialItem
 import cn.bakamc.folia.extension.onlinePlayers
@@ -29,7 +29,6 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.measureTime
 import kotlin.time.measureTimedValue
-
 
 object FlightEnergyManager : Listener, Initializable {
 

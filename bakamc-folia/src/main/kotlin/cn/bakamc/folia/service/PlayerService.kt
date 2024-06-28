@@ -25,7 +25,6 @@ object PlayerService {
         }
     }
 
-
     suspend fun getFlightEnergy(player: Player): FlightEnergy {
         return database {
             flightEnergies.find {

@@ -13,7 +13,6 @@ import org.bukkit.plugin.java.JavaPlugin
 
 private val registrationList = listOf(
     EntityChangedBlockEventListener,
-//    EntityPortalEnterEventListener,
     FlightEnergyManager,
     PlayerEventListener,
     BlockEventListener,

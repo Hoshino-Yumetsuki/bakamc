@@ -3,9 +3,9 @@ package cn.bakamc.folia.event.entity
 import cn.bakamc.common.text.BakaText
 import cn.bakamc.common.text.BakaText.ColorModifier
 import cn.bakamc.common.text.BakaText.LegacyChatFormattingModifier
-import cn.bakamc.folia.config.Configs.Misc.ANVIL_RENAME_DECORATION_MAPPING
-import cn.bakamc.folia.config.Configs.Misc.ANVIL_RENAME_LEGACY_FORMAT_CHARS
-import cn.bakamc.folia.config.Configs.Misc.ENABLE_ANVIL_CUSTOM_RENAME
+import cn.bakamc.folia.config.MiscConfig.ANVIL_RENAME_DECORATION_MAPPING
+import cn.bakamc.folia.config.MiscConfig.ANVIL_RENAME_LEGACY_FORMAT_CHARS
+import cn.bakamc.folia.config.MiscConfig.ENABLE_ANVIL_CUSTOM_RENAME
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.PrepareAnvilEvent

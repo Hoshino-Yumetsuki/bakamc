@@ -11,6 +11,7 @@ import moe.forpleuvoir.nebula.config.item.impl.*
 import moe.forpleuvoir.nebula.config.manager.ConfigManagerImpl
 import moe.forpleuvoir.nebula.config.manager.component.localConfig
 import moe.forpleuvoir.nebula.config.manager.components
+import moe.forpleuvoir.nebula.config.persistence.ConfigManagerPersistence
 import moe.forpleuvoir.nebula.config.persistence.jsonPersistence
 import java.nio.file.Path
 
@@ -27,9 +28,10 @@ object Configs : ConfigManagerImpl(BakamcProxyInstance.INSTANCE.bakaName) {
         configPath = path
 
         components {
-            localConfig(configPath, jsonPersistence())
+            val persistence: ConfigManagerPersistence = jsonPersistence()
+            localConfig(configPath, persistence)
             backup(configPath, logger)
-            generateTemp(configPath, jsonPersistence(), logger)
+            generateTemp(configPath, persistence, logger)
         }
 
         init()

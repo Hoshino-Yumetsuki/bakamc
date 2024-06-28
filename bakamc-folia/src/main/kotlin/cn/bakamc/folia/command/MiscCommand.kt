@@ -4,6 +4,7 @@ import cn.bakamc.folia.BakaMCPlugin
 import cn.bakamc.folia.command.base.Command
 import cn.bakamc.folia.command.base.execute
 import cn.bakamc.folia.command.base.literal
+import cn.bakamc.folia.command.base.permission
 import cn.bakamc.folia.util.launch
 
 @Suppress("FunctionName", "DuplicatedCode")
@@ -17,6 +18,7 @@ fun MiscCommand(): Command = Command("bakamc") {
         }
     }
     literal("test") {
+        permission { it.sender.isOp }
         execute {
             it.feedback("bakamc test!")
         }

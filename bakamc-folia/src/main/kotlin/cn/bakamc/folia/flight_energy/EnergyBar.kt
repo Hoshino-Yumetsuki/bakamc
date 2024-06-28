@@ -1,6 +1,6 @@
 package cn.bakamc.folia.flight_energy
 
-import cn.bakamc.folia.config.Configs.FlightEnergy.MAX_ENERGY
+import cn.bakamc.folia.config.FlightEnergyConfig.MAX_ENERGY
 import cn.bakamc.folia.db.table.FlightEnergy
 import moe.forpleuvoir.nebula.common.util.clamp
 import org.bukkit.NamespacedKey
@@ -8,11 +8,11 @@ import org.bukkit.Server
 import org.bukkit.boss.KeyedBossBar
 import org.bukkit.entity.Player
 import java.util.*
-import cn.bakamc.folia.config.Configs.FlightEnergy.EnergyBar as Bar
+import cn.bakamc.folia.config.FlightEnergyConfig.EnergyBar as Bar
 
 class EnergyBar private constructor(
     private val server: Server,
-    private val player: Player,
+    player: Player,
     private val flightEnergy: FlightEnergy,
 ) {
 

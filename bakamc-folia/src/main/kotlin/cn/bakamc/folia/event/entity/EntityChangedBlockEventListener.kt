@@ -1,15 +1,16 @@
 package cn.bakamc.folia.event.entity
 
-import cn.bakamc.folia.config.Configs.BLOCK_INFOS
-import cn.bakamc.folia.config.Configs.Entity.CHANGE_BLOCK_MAP
-import cn.bakamc.folia.config.Configs.Entity.ENTITY_INFOS
-import cn.bakamc.folia.config.Configs.Entity.EXPLODE_BLOCK_MAP
+import cn.bakamc.folia.config.EntityConfig.CHANGE_BLOCK_MAP
+import cn.bakamc.folia.config.EntityConfig.ENTITY_INFOS
+import cn.bakamc.folia.config.EntityConfig.EXPLODE_BLOCK_MAP
+import cn.bakamc.folia.config.item.BlockConfig.BLOCK_INFOS
 import cn.bakamc.folia.util.logger
 import cn.bakamc.folia.util.serialization
 import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.Serializable
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
+import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.deserialization
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import org.bukkit.block.Block
@@ -122,12 +123,13 @@ data class EntityInfo(
         }
 
         override fun deserialization(serializeElement: SerializeElement): EntityInfo {
-            serializeElement as SerializeObject
-            return EntityInfo(
-                serializeElement["name"]?.asString,
-                serializeElement["uuid"]?.asString,
-                serializeElement["type"]?.asString,
-            )
+            return serializeElement.checkType<SerializeObject, EntityInfo> { obj ->
+                EntityInfo(
+                    obj["name"]?.asString,
+                    obj["uuid"]?.asString,
+                    obj["type"]?.asString,
+                )
+            }.getOrThrow()
         }
     }
 
@@ -205,15 +207,16 @@ data class BlockInfo(
         }
 
         override fun deserialization(serializeElement: SerializeElement): BlockInfo {
-            serializeElement as SerializeObject
-            return BlockInfo(
-                serializeElement["x"]?.let { IntRange.deserialization(it) },
-                serializeElement["y"]?.let { IntRange.deserialization(it) },
-                serializeElement["z"]?.let { IntRange.deserialization(it) },
-                serializeElement["type"]?.asString,
-                serializeElement["biome"]?.asString,
-                serializeElement["world"]?.asString,
-            )
+            return serializeElement.checkType<SerializeObject, BlockInfo> { obj ->
+                BlockInfo(
+                    obj["x"]?.let { IntRange.deserialization(it) },
+                    obj["y"]?.let { IntRange.deserialization(it) },
+                    obj["z"]?.let { IntRange.deserialization(it) },
+                    obj["type"]?.asString,
+                    obj["biome"]?.asString,
+                    obj["world"]?.asString,
+                )
+            }.getOrThrow()
         }
 
     }
