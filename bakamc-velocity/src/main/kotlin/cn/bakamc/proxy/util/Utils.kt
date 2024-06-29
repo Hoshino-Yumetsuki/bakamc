@@ -1,22 +1,24 @@
 package cn.bakamc.proxy.util
 
+import cn.bakamc.proxy.config.MiscConfig.PLAYER_INFO
+import cn.bakamc.proxy.config.MiscConfig.SERVER_INFO
+import cn.bakamc.proxy.config.MiscConfig.SERVER_NAME_MAPPING
 import com.velocitypowered.api.proxy.Player
 import com.velocitypowered.api.proxy.server.RegisteredServer
-import moe.forpleuvoir.nebula.common.color.Color
-import moe.forpleuvoir.nebula.common.color.HSVColor
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.event.ClickEvent
 import net.kyori.adventure.text.event.HoverEvent
 import net.kyori.adventure.text.format.TextColor
 
 object Utils {
+
     fun Player.asComponent(): Component {
         val hover = HoverEvent.showText(
             Component.text(username).appendNewline()
                 .append(Component.text(uniqueId.toString()))
                 .append(Component.text("点击传送传送到Ta身边"))
         )
-        val click = ClickEvent.suggestCommand("/tpa " + username)
+        val click = ClickEvent.suggestCommand("/tpa $username")
         return Component.text(username).applyFallbackStyle(hover, click, TextColor.color(0x01E9E8))
     }
 
@@ -32,50 +34,16 @@ object Utils {
         return Component.text(serverName).applyFallbackStyle(hover, click, TextColor.color(0xE76E42))
     }
 
-    fun HSVColor.gradient(end: HSVColor, sliceSize: Int): List<HSVColor> {
-        return gradientHSVColor(this, end, sliceSize)
+    fun replace(bakaText: String, server: RegisteredServer, player: Player): String {
+        val serverInfo = server.serverInfo
+        return bakaText.replace("#{server_info}", SERVER_INFO)
+            .replace("#{player_info}", PLAYER_INFO)
+            .replace("#{server_id}", serverInfo.name)
+            .replace("#{server_name}", SERVER_NAME_MAPPING[serverInfo.name] ?: serverInfo.name)
+            .replace("#{player_uuid}", player.uniqueId.toString())
+            .replace("#{player_name}", player.username)
     }
 
-    fun Color.gradient(end: Color, sliceSize: Int): List<Color> {
-        return gradientColor(this, end, sliceSize)
-    }
 
-    fun gradientHSVColor(start: HSVColor, end: HSVColor, sliceSize: Int): List<HSVColor> {
-        check(sliceSize > 0) { "slice must be greater than 0" }
-        if (sliceSize == 1) return listOf(HSVColor(start.hue, start.saturation, start.value, start.value, false))
-        val hueSlice = (end.hue - start.hue) / sliceSize
-        val saturationSlice = (end.saturation - start.saturation) / sliceSize
-        val valueSlice = (end.value - start.value) / sliceSize
-        val alphaSlice = (end.alpha - start.alpha) / sliceSize
-        return buildList {
-            repeat(sliceSize) {
-                add(HSVColor(start.hue, start.saturation, start.value, start.value, false).also { color ->
-                    color.hue = start.hue + (hueSlice * it)
-                    color.saturation = start.saturation + (saturationSlice * it)
-                    color.value = start.value + (valueSlice * it)
-                    color.alpha = start.alpha + (alphaSlice * it)
-                })
-            }
-        }
-    }
-
-    fun gradientColor(start: Color, end: Color, sliceSize: Int): List<Color> {
-        check(sliceSize > 0) { "slice must be greater than 0" }
-        if (sliceSize == 1) return listOf(Color(start.red, start.green, start.blue, start.alpha, false))
-        val redSlice = (end.redF - start.redF) / sliceSize
-        val greenSlice = (end.greenF - start.greenF) / sliceSize
-        val blueSlice = (end.blueF - start.blueF) / sliceSize
-        val alphaSlice = (end.alpha - start.alpha) / sliceSize
-        return buildList {
-            repeat(sliceSize) {
-                add(Color(start.red, start.green, start.blue, start.alpha, false).also { color ->
-                    color.redF = start.redF + (redSlice * it)
-                    color.greenF = start.greenF + (greenSlice * it)
-                    color.blueF = start.blueF + (blueSlice * it)
-                    color.alpha = start.alpha + (alphaSlice * it)
-                })
-            }
-        }
-    }
 }
 

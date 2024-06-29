@@ -9,6 +9,7 @@ dependencies {
     paperweight.foliaDevBundle("${libs.versions.minecraftVersion.get()}-R0.1-SNAPSHOT")
 
     compileOnly(libs.vaultApi) { isTransitive = false }
+    implementation(libs.adventureExtraKotlin)
 
     //data base
     runtimeOnly(libs.mysql)

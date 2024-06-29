@@ -1,6 +1,6 @@
 package cn.bakamc.common.config.item
 
-import cn.bakamc.common.text.BakaText
+import cn.bakamc.common.text.bakatext.modifier.DecorationMapping
 import moe.forpleuvoir.nebula.config.ConfigBase
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
@@ -9,20 +9,20 @@ import moe.forpleuvoir.nebula.serialization.extensions.toSerializeObject
 
 class ConfigDecorationMapping(
     override val key: String,
-    override val defaultValue: BakaText.DecorationMapping
-) : ConfigBase<BakaText.DecorationMapping, ConfigDecorationMapping>() {
+    override val defaultValue: DecorationMapping
+) : ConfigBase<DecorationMapping, ConfigDecorationMapping>() {
 
-    override var configValue: BakaText.DecorationMapping = defaultValue
+    override var configValue: DecorationMapping = defaultValue
 
     override fun deserialization(serializeElement: SerializeElement) {
-        configValue = serializeElement.checkType<SerializeObject, BakaText.DecorationMapping> { obj ->
-            BakaText.DecorationMapping(
-                obj["obfuscated"]?.asArray?.map { it.asString } ?: emptyList(),
-                obj["bold"]?.asArray?.map { it.asString } ?: emptyList(),
-                obj["italic"]?.asArray?.map { it.asString } ?: emptyList(),
-                obj["strikethrough"]?.asArray?.map { it.asString } ?: emptyList(),
-                obj["underline"]?.asArray?.map { it.asString } ?: emptyList(),
-                obj["rest"]?.asArray?.map { it.asString } ?: emptyList(),
+        configValue = serializeElement.checkType<SerializeObject, DecorationMapping> { obj ->
+            DecorationMapping(
+                obfuscated = obj["obfuscated"]?.asArray?.map { it.asString } ?: emptyList(),
+                bold = obj["bold"]?.asArray?.map { it.asString } ?: emptyList(),
+                italic = obj["italic"]?.asArray?.map { it.asString } ?: emptyList(),
+                strikethrough = obj["strikethrough"]?.asArray?.map { it.asString } ?: emptyList(),
+                underline = obj["underline"]?.asArray?.map { it.asString } ?: emptyList(),
+                rest = obj["rest"]?.asArray?.map { it.asString } ?: emptyList(),
             )
         }.getOrThrow()
     }

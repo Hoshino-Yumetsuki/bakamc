@@ -31,6 +31,10 @@ object PlayerEventListener : Listener {
         }
     }
 
+    @EventHandler
+    fun onChangeWorld(event: PlayerChangedWorldEvent) {
+        FlightEnergyManager.onWorldChanged(event)
+    }
 
     @EventHandler
     fun onPlayerQuit(event: PlayerQuitEvent) {

@@ -1,14 +1,14 @@
 package cn.bakamc.proxy.event.mirai
 
 import cn.bakamc.proxy.BakamcProxyInstance
-import cn.bakamc.proxy.config.Configs.Bot.CONSOLE_COMMAND_EXECUTORS
-import cn.bakamc.proxy.feature.white_list.WhiteListConfigs.BIND_COMMAND
-import cn.bakamc.proxy.feature.white_list.WhiteListConfigs.BOT_ID
-import cn.bakamc.proxy.feature.white_list.WhiteListConfigs.FORCE_UPDATE_MEMBER_CARD
-import cn.bakamc.proxy.feature.white_list.WhiteListConfigs.RENAME_AFTER_BIND
-import cn.bakamc.proxy.feature.white_list.WhiteListConfigs.RENAME_EXP
-import cn.bakamc.proxy.feature.white_list.WhiteListConfigs.VERIFY_CODE_LENGTH
-import cn.bakamc.proxy.feature.white_list.WhiteListConfigs.VERIFY_GROUP
+import cn.bakamc.proxy.config.BotConfig.BOTS
+import cn.bakamc.proxy.config.BotConfig.CONSOLE_COMMAND_EXECUTORS
+import cn.bakamc.proxy.config.WhiteListConfigs.BIND_COMMAND
+import cn.bakamc.proxy.config.WhiteListConfigs.FORCE_UPDATE_MEMBER_CARD
+import cn.bakamc.proxy.config.WhiteListConfigs.RENAME_AFTER_BIND
+import cn.bakamc.proxy.config.WhiteListConfigs.RENAME_EXP
+import cn.bakamc.proxy.config.WhiteListConfigs.VERIFY_CODE_LENGTH
+import cn.bakamc.proxy.config.WhiteListConfigs.VERIFY_GROUP
 import cn.bakamc.proxy.feature.white_list.WhiteListManager
 import cn.bakamc.proxy.services.PlayerServices
 import com.velocitypowered.api.event.Subscribe
@@ -40,12 +40,12 @@ object GroupEventListener {
 
     @Subscribe
     fun onGroupMessage(event: MiraiGroupMessageEvent) {
-        if (event.groupID == VERIFY_GROUP && event.botID == BOT_ID) {
+        if (event.groupID == VERIFY_GROUP && event.botID in BOTS) {
             val message = event.message
             when {
                 message.startsWith(BIND_COMMAND) -> onBind(event)
                 message.startsWith("updateCard") -> updateCard(event)
-                message.startsWith("c/")        -> consoleCommand(event)
+                message.startsWith("c/")         -> consoleCommand(event)
             }
         }
     }
@@ -104,6 +104,7 @@ object GroupEventListener {
         val message = event.message
         BakamcProxyInstance.logger.info("绑定指令$message")
         val code = message.substring(BIND_COMMAND.length + 1)
+        @Suppress("RegExpSimplifiable")
         if (code.matches("^[A-Z0-9]{${VERIFY_CODE_LENGTH}}\$".toRegex())) {
             ioLaunch {
                 val (msg, names) = WhiteListManager.bind(code, event.senderID)
@@ -127,7 +128,7 @@ object GroupEventListener {
 
     @Subscribe
     fun onQuitGroup(event: MiraiMemberLeaveEvent) {
-        if (event.groupID == VERIFY_GROUP && event.botID == BOT_ID) {
+        if (event.groupID == VERIFY_GROUP && event.botID in BOTS) {
             val id = event.member.id
             ioLaunch {
                 WhiteListManager.onMemberQuit(id)

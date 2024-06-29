@@ -1,8 +1,9 @@
 package cn.bakamc.folia.event.entity
 
-import cn.bakamc.common.text.BakaText
-import cn.bakamc.common.text.BakaText.ColorModifier
-import cn.bakamc.common.text.BakaText.LegacyChatFormattingModifier
+import cn.bakamc.common.text.bakatext.BakaText
+import cn.bakamc.common.text.bakatext.modifier.ColorModifier
+import cn.bakamc.common.text.bakatext.modifier.DecorationModifier
+import cn.bakamc.common.text.bakatext.modifier.LegacyChatFormattingModifier
 import cn.bakamc.folia.config.MiscConfig.ANVIL_RENAME_DECORATION_MAPPING
 import cn.bakamc.folia.config.MiscConfig.ANVIL_RENAME_LEGACY_FORMAT_CHARS
 import cn.bakamc.folia.config.MiscConfig.ENABLE_ANVIL_CUSTOM_RENAME
@@ -21,7 +22,7 @@ object BlockEventListener : Listener {
                     val meta = itemStack.itemMeta
                     val text = BakaText.parse(
                         renameText, listOf(
-                            BakaText.DecorationModifier(ANVIL_RENAME_DECORATION_MAPPING),
+                            DecorationModifier(ANVIL_RENAME_DECORATION_MAPPING),
                             ColorModifier,
                             LegacyChatFormattingModifier(formatChars = ANVIL_RENAME_LEGACY_FORMAT_CHARS.toSet())
                         )

@@ -1,4 +1,4 @@
-package cn.bakamc.folia.config
+package cn.bakamc.proxy.config
 
 import moe.forpleuvoir.nebula.config.annotation.ConfigMeta
 import moe.forpleuvoir.nebula.config.container.ConfigContainerImpl
@@ -17,25 +17,24 @@ object DatabaseConfig : ConfigContainerImpl("database") {
     @ConfigMeta(order = 2)
     val PASSWORD by ConfigString("password", "root")
 
-    @ConfigMeta(order = 3)
     object DataSource : ConfigContainerImpl("data_source") {
 
         @ConfigMeta(order = 0)
         val CONNECTION_TIMEOUT by ConfigLong("connection_timeout", 60000)
 
-        @ConfigMeta(order = 1)
+        @ConfigMeta(order = 2)
         val IDLE_TIMEOUT by ConfigLong("idle_timeout", 60000)
 
-        @ConfigMeta(order = 2)
+        @ConfigMeta(order = 3)
         val MAXIMUM_POOL_SIZE by ConfigInt("maximum_pool_size", 30)
 
-        @ConfigMeta(order = 3)
+        @ConfigMeta(order = 4)
         val MAX_LIFETIME by ConfigLong("max_lifetime", 180000)
 
-        @ConfigMeta(order = 4)
+        @ConfigMeta(order = 5)
         val KEEPALIVE_TIME by ConfigLong("keepalive_time", 0)
 
-        @ConfigMeta(order = 5)
+        @ConfigMeta(order = 6)
         val MINIMUM_IDLE by ConfigInt("minimum_idle", 5)
 
     }

@@ -6,6 +6,7 @@ import cn.bakamc.folia.command.base.execute
 import cn.bakamc.folia.command.base.literal
 import cn.bakamc.folia.command.base.permission
 import cn.bakamc.folia.util.launch
+import org.bukkit.entity.Player
 
 @Suppress("FunctionName", "DuplicatedCode")
 fun MiscCommand(): Command = Command("bakamc") {
@@ -21,6 +22,12 @@ fun MiscCommand(): Command = Command("bakamc") {
         permission { it.sender.isOp }
         execute {
             it.feedback("bakamc test!")
+        }
+    }
+    literal("world") {
+        permission { it.sender.isOp }
+        execute<Player> {
+            it.feedback(it.sender.world.name)
         }
     }
 //    literal("world") {

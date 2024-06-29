@@ -24,10 +24,8 @@ fun CoroutineScope.suspendFun(): Deferred<Int> {
 }
 
 suspend fun Configs.testInit(path: Path) {
-    configPath = path
     init()
     runCatching {
-        generateTemp()
         Configs.load()
         if (this.needSave) {
             Configs.save()

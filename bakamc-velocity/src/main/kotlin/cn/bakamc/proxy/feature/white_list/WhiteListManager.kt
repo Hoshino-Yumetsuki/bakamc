@@ -1,15 +1,15 @@
 package cn.bakamc.proxy.feature.white_list
 
+import cn.bakamc.common.text.bakatext.BakaText
 import cn.bakamc.proxy.BakamcProxyInstance
+import cn.bakamc.proxy.config.WhiteListConfigs.BIND_LIMIT
+import cn.bakamc.proxy.config.WhiteListConfigs.TIPS
+import cn.bakamc.proxy.config.WhiteListConfigs.VERIFY_CODE_EXPIRATION_TIME
+import cn.bakamc.proxy.config.WhiteListConfigs.VERIFY_CODE_LENGTH
 import cn.bakamc.proxy.database.database
 import cn.bakamc.proxy.database.table.playerInfos
-import cn.bakamc.proxy.feature.white_list.WhiteListConfigs.BIND_LIMIT
-import cn.bakamc.proxy.feature.white_list.WhiteListConfigs.TIPS
-import cn.bakamc.proxy.feature.white_list.WhiteListConfigs.VERIFY_CODE_EXPIRATION_TIME
-import cn.bakamc.proxy.feature.white_list.WhiteListConfigs.VERIFY_CODE_LENGTH
 import cn.bakamc.proxy.services.PlayerServices
 import cn.bakamc.proxy.services.PlayerServices.insertOrUpdatePlayer
-import cn.bakamc.proxy.util.parseBakaText
 import com.velocitypowered.api.event.player.ServerPreConnectEvent
 import com.velocitypowered.api.proxy.Player
 import kotlinx.coroutines.runBlocking
@@ -20,6 +20,7 @@ import org.ktorm.dsl.notEq
 import org.ktorm.entity.find
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.ZoneId
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.random.Random
@@ -28,19 +29,19 @@ object WhiteListManager {
 
     private val chars = ('A'..'Z') + ('0'..'9')
 
-    private var day = ""
+    private var today = ""
 
     private fun generate(length: Int): String {
-        val today = LocalDate.now()
-        val currentDay = "${today.monthValue} ${today.dayOfMonth} ${today.year}"
-        if (today.dayOfWeek == DayOfWeek.THURSDAY && day != currentDay) {
+        val now = LocalDate.now(ZoneId.of("Asia/Shanghai"))
+        val currentDay = "${now.year}-${now.monthValue}-${now.dayOfMonth} "
+        if (now.dayOfWeek == DayOfWeek.THURSDAY && this.today != currentDay) {
             val code = when (length) {
                 6    -> "KFCV50"
                 8    -> "KFCVME50"
                 else -> ""
             }
             if (code.isNotEmpty() && Random.nextFloat() < 0.25f) {
-                day = currentDay
+                this.today = currentDay
                 return if (verifyCodes.containsKey(code)) generate(length) else code
             }
         }
@@ -109,7 +110,7 @@ object WhiteListManager {
     private fun interceptPlayer(player: Player, verifyCode: String) {
         player.disconnect(Component.text().run {
             TIPS.withIndex().forEach { (index, tip) ->
-                append(parseBakaText(tip.replace("#{verify_code}", verifyCode)))
+                append(BakaText.parse(tip.replace("#{verify_code}", verifyCode)))
                 if (index != TIPS.lastIndex) appendNewline()
             }
             this

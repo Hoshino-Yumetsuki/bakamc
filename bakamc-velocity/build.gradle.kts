@@ -13,6 +13,7 @@ dependencies {
 
     compileOnly(libs.miraiMCVelocity)
 
+    bakaImplementation(libs.adventureExtraKotlin)
     bakaImplementation(project(":bakamc-common"))
 
     bakaImplementation(libs.nebula) {
@@ -52,7 +53,6 @@ tasks {
         exclude("org/jetbrains/**")
         exclude("META-INF/com.android.tools/**")
     }
-
 
 }
 

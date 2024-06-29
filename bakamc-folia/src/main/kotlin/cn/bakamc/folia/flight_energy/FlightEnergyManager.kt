@@ -1,7 +1,10 @@
 package cn.bakamc.folia.flight_energy
 
+import cn.bakamc.common.text.bakatext.BakaText
+import cn.bakamc.folia.config.FlightEnergyConfig.ALLOW_FLY_WORLD
 import cn.bakamc.folia.config.FlightEnergyConfig.CLOSE_ADVENTURE_PLAYERS_FLYING
 import cn.bakamc.folia.config.FlightEnergyConfig.ENERGY_COST
+import cn.bakamc.folia.config.FlightEnergyConfig.FORBID_FLY_WORLD_MESSAGE
 import cn.bakamc.folia.config.FlightEnergyConfig.MONEY_ITEM
 import cn.bakamc.folia.config.FlightEnergyConfig.SYNC_PERIOD
 import cn.bakamc.folia.config.FlightEnergyConfig.TICK_PERIOD
@@ -20,6 +23,7 @@ import net.minecraft.server.level.ServerPlayer
 import org.bukkit.GameMode
 import org.bukkit.entity.Player
 import org.bukkit.event.Listener
+import org.bukkit.event.player.PlayerChangedWorldEvent
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.jetbrains.annotations.Contract
@@ -34,11 +38,17 @@ object FlightEnergyManager : Listener, Initializable {
 
     private lateinit var energyCache: MutableMap<Player, FlightEnergy>
 
-    private lateinit var energyBar: MutableMap<Player, EnergyBar>
+    private lateinit var energyBarCache: MutableMap<Player, EnergyBar>
 
     private lateinit var tasks: List<AsyncTask>
 
     private var syncing = AtomicBoolean(false)
+
+    val Player.flightEnergy: FlightEnergy?
+        get() = energyCache[this]
+
+    val Player.energyBar: EnergyBar?
+        get() = energyBarCache[this]
 
     /**
      * 玩家当前的飞行能量
@@ -94,12 +104,12 @@ object FlightEnergyManager : Listener, Initializable {
 
         energyCache = ConcurrentHashMap()
 
-        energyBar = ConcurrentHashMap()
+        energyBarCache = ConcurrentHashMap()
 
         runBlocking {
             energyCache.putAll(PlayerService.getFlightEnergies(onlinePlayers))
             energyCache.forEach { (player, flightEnergy) ->
-                energyBar[player] = EnergyBar.create(server, player, flightEnergy)
+                energyBarCache[player] = EnergyBar.create(server, player, flightEnergy)
             }
             logger.info("飞行能量加载完成")
         }
@@ -110,10 +120,10 @@ object FlightEnergyManager : Listener, Initializable {
         if (this::energyCache.isInitialized) {
             if (!syncing.get()) sync()
             energyCache.clear()
-            energyBar.forEach {
+            energyBarCache.forEach {
                 it.value.close()
             }
-            energyBar.clear()
+            energyBarCache.clear()
         }
     }
 
@@ -142,34 +152,52 @@ object FlightEnergyManager : Listener, Initializable {
 
     suspend fun onPlayerJoin(player: Player) {
         energyCache[player] = PlayerService.getFlightEnergy(player)
-        energyBar[player] = EnergyBar.create(server, player, energyCache[player]!!)
-        if (player.gameMode == GameMode.SURVIVAL) {
-            player.allowFlight = energyCache[player]!!.enabled
-            if (player.isOnGround) return
-            player.isFlying = energyCache[player]!!.enabled
-        }
+        energyBarCache[player] = EnergyBar.create(server, player, energyCache[player]!!)
+
+        if (player.allowFly()) {
+            player.flightEnergy?.let {
+                player.allowFlight = it.enabled
+                if (!player.isOnGround) player.isFlying = it.enabled
+            }
+        } else if (!player.inAllowFlyWorld) player.sendMessage(forbidFlyWorldMessage)
+
     }
 
     suspend fun onPlayerQuit(player: Player) {
         PlayerService.updateFlightEnergy(energyCache[player]!!)
         energyCache.remove(player)
-        energyBar.remove(player)?.close()
+        energyBarCache.remove(player)?.close()
+    }
+
+    fun onWorldChanged(event: PlayerChangedWorldEvent) {
+        val player = event.player
+        if (!player.allowFly()) {
+            if (!player.inAllowFlyWorld) player.sendMessage(forbidFlyWorldMessage)
+            toggleFly(player, false)
+        }
     }
 
     fun onPlayerRespawn(player: Player) {
-        if (player.gameMode == GameMode.SURVIVAL)
-            player.allowFlight = energyCache[player]!!.enabled
+        if (player.allowFly()) {
+            player.flightEnergy?.let {
+                if (it.enabled) {
+                    player.allowFlight = true
+                }
+            }
+        } else {
+            if (!player.inAllowFlyWorld) player.sendMessage(forbidFlyWorldMessage)
+        }
     }
 
     fun onPlayerGameModeChange(player: Player, newGameMode: GameMode) {
         if (newGameMode == GameMode.SURVIVAL) {
             val isFlying = player.isFlying
             player.execute(1) {
-                player.allowFlight = energyCache[player]!!.enabled
+                player.allowFlight = player.flightEnergy?.enabled ?: false
                 if (player.allowFlight) player.isFlying = isFlying
             }
         } else {
-            energyBar[player]!!.setVisible(false)
+            player.energyBar?.setVisible(false)
         }
     }
 
@@ -192,14 +220,48 @@ object FlightEnergyManager : Listener, Initializable {
      */
     @Contract("_, null -> !enabled")
     fun toggleFly(player: Player, enabled: Boolean? = null) {
-        energyCache[player]?.let {
-            it.enabled = enabled ?: !it.enabled
-            if (!it.enabled) energyBar[player]!!.setVisible(false)
-            if (player.gameMode == GameMode.SURVIVAL)
-                player.allowFlight = it.enabled
+        player.flightEnergy?.let {
+            if (enabled ?: !it.enabled)
+                player.enableFly()
+            else
+                player.disableFly()
         }
     }
 
+    private fun Player.enableFly() {
+        if (!allowFly()) {
+            if (!inAllowFlyWorld) sendMessage(forbidFlyWorldMessage)
+            return
+        }
+        val flightEnergy = flightEnergy
+        flightEnergy?.enabled = true
+        if (flightEnergy?.enabled != true) energyBar?.setVisible(false)
+        if (gameMode in arrayOf(GameMode.SURVIVAL, GameMode.ADVENTURE)) {
+            allowFlight = flightEnergy?.enabled ?: false
+        }
+    }
+
+    private fun Player.disableFly() {
+        flightEnergy?.enabled = false
+        energyBar?.setVisible(false)
+        if (gameMode in arrayOf(GameMode.SURVIVAL, GameMode.ADVENTURE)) {
+            allowFlight = false
+            isFlying = false
+        }
+    }
+
+    private val forbidFlyWorldMessage get() = BakaText.parse(FORBID_FLY_WORLD_MESSAGE)
+
+    /**
+     * 检查玩家是否可以被设置为飞行
+     * @receiver Player
+     * @return Boolean
+     */
+    private fun Player.allowFly(): Boolean {
+        return inAllowFlyWorld && this.gameMode == GameMode.SURVIVAL && energy > 0
+    }
+
+    private val Player.inAllowFlyWorld: Boolean get() = world.name in ALLOW_FLY_WORLD
 
     private fun sync() {
         runBlocking {
@@ -219,7 +281,7 @@ object FlightEnergyManager : Listener, Initializable {
         measureTime {
             PlayerService.updateFlightEnergy(energyCache[this]!!)
         }.let {
-            logger.info("玩家飞行能量更改[${old} -> ${this.energy}],耗时$it")
+            logger.info("玩家[${name}]飞行能量更新[${old} -> ${this.energy}],耗时$it")
         }
     }
 
@@ -229,30 +291,45 @@ object FlightEnergyManager : Listener, Initializable {
      */
     private fun tick() {
         if (CLOSE_ADVENTURE_PLAYERS_FLYING) {
-            onlinePlayers.filter { player -> player.gameMode == GameMode.ADVENTURE && player.allowFlight }.forEach { player ->
+            onlinePlayers.filter { player -> player.gameMode == GameMode.ADVENTURE && player.flightEnergy!!.enabled }.forEach { player ->
                 player.execute {
+                    player.flightEnergy!!.enabled = false
                     player.allowFlight = false
                 }
             }
         }
-        onlinePlayers.filter {
-            it.gameMode == GameMode.SURVIVAL && it.energy > 0.0 && it.vehicle == null
-        }.filter {
-            energyBar[it]?.setVisible(it.isFlying)
-            it.isFlying
+        onlinePlayers.filter { player ->
+            //是否需要扣除飞行能量
+            (player.gameMode in arrayOf(GameMode.SURVIVAL, GameMode.ADVENTURE)) && player.energy > 0.0 && player.vehicle == null
+        }.filter { player ->
+            //是否在可以飞行的世界且已经开了飞行
+            if (!player.inAllowFlyWorld && player.flightEnergy!!.enabled) {
+                player.disableFly()
+                player.sendMessage(forbidFlyWorldMessage)
+                return@filter false
+            }
+            //将飞行能量条可见设置为当前飞行状态
+            player.energyBar?.setVisible(player.isFlying)
+            player.isFlying
         }.forEach { player ->
+            //更新飞行能量
             player.energy = (player.energy - (ENERGY_COST)).coerceAtLeast(0.0)
-            energyBar[player]!!.tick()
+            //更新飞行能量条状态
+            player.energyBar!!.tick()
+            //如果飞行能量耗尽
             if (player.energy <= 0.0) {
+                //关闭飞行
                 toggleFly(player, false)
                 player.sendMessage(literalText("飞行能量已耗尽", Style(Colors.RED)))
+                //给予200tick的缓降效果
                 player.execute {
-                    player.addPotionEffect(PotionEffect(PotionEffectType.SLOW_FALLING, 400, 1, false, true))
+                    player.addPotionEffect(PotionEffect(PotionEffectType.SLOW_FALLING, 200, 1, false, true))
                 }
 
             }
         }
     }
+
 
 }
 
