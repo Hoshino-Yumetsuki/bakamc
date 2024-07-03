@@ -4,7 +4,9 @@ import cn.bakamc.proxy.command.registerCommands
 import cn.bakamc.proxy.config.Configs
 import cn.bakamc.proxy.database.initDataBase
 import cn.bakamc.proxy.event.mirai.GroupEventListener
+import cn.bakamc.proxy.event.velocity.MessageChannelEventListener
 import cn.bakamc.proxy.event.velocity.PlayerEventListener
+import cn.bakamc.proxy.messagechannel.MessageChannels
 import com.velocitypowered.api.proxy.ProxyServer
 import kotlinx.coroutines.runBlocking
 import moe.forpleuvoir.nebula.common.ioLaunch
@@ -27,13 +29,13 @@ object BakamcProxyInstance {
     lateinit var dataDirectory: Path
         private set
 
-
     @JvmStatic
     fun init(bakamcProxy: BakamcProxy) {
         INSTANCE = bakamcProxy
         server = bakamcProxy.server
         logger = bakamcProxy.log
         dataDirectory = bakamcProxy.dataDirectory
+        MessageChannels.register(server)
         runBlocking {
             Configs.onLoaded {
                 initDataBase()
@@ -49,6 +51,7 @@ object BakamcProxyInstance {
         server.eventManager.apply {
             register(INSTANCE, GroupEventListener)
             register(INSTANCE, PlayerEventListener)
+            register(INSTANCE, MessageChannelEventListener)
             logger.info("事件监听注册完成")
         }
 

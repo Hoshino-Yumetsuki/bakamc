@@ -3,6 +3,7 @@ package cn.bakamc.proxy.feature.ip_restrict
 import cn.bakamc.common.text.bakatext.BakaText
 import cn.bakamc.proxy.config.IpRestrictConfig.CONNECT_LIMIT
 import cn.bakamc.proxy.config.IpRestrictConfig.INTERCEPT_MESSAGE
+import cn.bakamc.proxy.config.IpRestrictConfig.WHITELIST
 import com.velocitypowered.api.proxy.Player
 import kotlinx.coroutines.delay
 import moe.forpleuvoir.nebula.common.defaultLaunch
@@ -19,6 +20,7 @@ object IpRestrictor {
     private val ipRecord = mutableMapOf<UUID, String>()
 
     fun onPlayerConnect(player: Player) {
+        if (player.uniqueId.toString() in WHITELIST) return
         allOnlinePlayerUUID.add(player.uniqueId)
         if (checkDay()) onNewDay()
         val ip = player.remoteAddress.address.hostAddress
@@ -32,6 +34,7 @@ object IpRestrictor {
     }
 
     fun onPlayerDisconnect(player: Player) {
+        if (player.uniqueId.toString() in WHITELIST) return
         allOnlinePlayerUUID.remove(player.uniqueId)
         if (checkDay()) onNewDay()
     }
@@ -59,8 +62,9 @@ object IpRestrictor {
 
     private fun interceptPlayer(player: Player) {
         text {
-            INTERCEPT_MESSAGE.forEach {
-                append(BakaText.parse(it.replace("#{CONNECT_LIMIT}", "$CONNECT_LIMIT")))
+            INTERCEPT_MESSAGE.forEach { message ->
+                append(BakaText.parse(message.replace("#{CONNECT_LIMIT}", "$CONNECT_LIMIT")))
+                if (INTERCEPT_MESSAGE.last() != message) appendNewline()
             }
         }.let { player.disconnect(it) }
     }

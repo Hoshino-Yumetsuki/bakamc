@@ -1,41 +1,34 @@
 package cn.bakamc.proxy.config
 
-import moe.forpleuvoir.nebula.config.annotation.ConfigMeta
 import moe.forpleuvoir.nebula.config.container.ConfigContainerImpl
-import moe.forpleuvoir.nebula.config.item.impl.ConfigInt
-import moe.forpleuvoir.nebula.config.item.impl.ConfigLong
-import moe.forpleuvoir.nebula.config.item.impl.ConfigString
+import moe.forpleuvoir.nebula.config.item.impl.int
+import moe.forpleuvoir.nebula.config.item.impl.long
+import moe.forpleuvoir.nebula.config.item.impl.string
 
 object DatabaseConfig : ConfigContainerImpl("database") {
 
-    @ConfigMeta(order = 0)
-    val URL by ConfigString("url", "jdbc:mysql://localhost:3306/bakamc?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai")
+    val URL by string("url", "jdbc:mysql://localhost:3306/bakamc?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai")
 
-    @ConfigMeta(order = 1)
-    val USER by ConfigString("user", "root")
+    val USER by string("user", "root")
 
-    @ConfigMeta(order = 2)
-    val PASSWORD by ConfigString("password", "root")
+    val PASSWORD by string("password", "root")
+
+
+    private val source = addConfig(DataSource)
 
     object DataSource : ConfigContainerImpl("data_source") {
 
-        @ConfigMeta(order = 0)
-        val CONNECTION_TIMEOUT by ConfigLong("connection_timeout", 60000)
+        val CONNECTION_TIMEOUT by long("connection_timeout", 60000)
 
-        @ConfigMeta(order = 2)
-        val IDLE_TIMEOUT by ConfigLong("idle_timeout", 60000)
+        val IDLE_TIMEOUT by long("idle_timeout", 60000)
 
-        @ConfigMeta(order = 3)
-        val MAXIMUM_POOL_SIZE by ConfigInt("maximum_pool_size", 30)
+        val MAXIMUM_POOL_SIZE by int("maximum_pool_size", 30)
 
-        @ConfigMeta(order = 4)
-        val MAX_LIFETIME by ConfigLong("max_lifetime", 180000)
+        val MAX_LIFETIME by long("max_lifetime", 180000)
 
-        @ConfigMeta(order = 5)
-        val KEEPALIVE_TIME by ConfigLong("keepalive_time", 0)
+        val KEEPALIVE_TIME by long("keepalive_time", 0)
 
-        @ConfigMeta(order = 6)
-        val MINIMUM_IDLE by ConfigInt("minimum_idle", 5)
+        val MINIMUM_IDLE by int("minimum_idle", 5)
 
     }
 

@@ -15,7 +15,8 @@ object HoverEventModifier : Modifier {
             text.hoverEvent(
                 HoverEvent.showText(
                     text {
-                        content.split("\\n").forEachIndexed { index, line ->
+                        val lines = content.split("\\n")
+                        lines.forEach { line ->
                             BakaText.parse(
                                 line, listOf(
                                     DecorationModifier(),
@@ -24,9 +25,9 @@ object HoverEventModifier : Modifier {
                                 )
                             ).let {
                                 append(it)
+                                if (line != lines.last()) appendNewline()
                             }
                         }
-
                     }
                 )
             )

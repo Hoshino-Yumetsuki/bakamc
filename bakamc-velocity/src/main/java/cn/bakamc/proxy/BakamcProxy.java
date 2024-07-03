@@ -66,4 +66,5 @@ public class BakamcProxy implements Bakamc {
     public Path getDataDirectory() {
         return dataDirectory;
     }
+
 }

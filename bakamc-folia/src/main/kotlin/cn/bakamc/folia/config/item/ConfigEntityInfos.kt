@@ -3,6 +3,7 @@ package cn.bakamc.folia.config.item
 import cn.bakamc.folia.event.entity.EntityInfo
 import moe.forpleuvoir.nebula.common.util.NotifiableLinkedHashMap
 import moe.forpleuvoir.nebula.config.ConfigBase
+import moe.forpleuvoir.nebula.config.container.ConfigContainer
 import moe.forpleuvoir.nebula.config.item.ConfigMutableMapValue
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
@@ -41,3 +42,5 @@ class ConfigEntityInfos(
     }
 
 }
+
+fun ConfigContainer.entityInfos(key: String, default: Map<String, EntityInfo>) = addConfig(ConfigEntityInfos(key, default))

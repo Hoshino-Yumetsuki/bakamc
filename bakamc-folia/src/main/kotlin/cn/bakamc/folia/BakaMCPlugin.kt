@@ -8,6 +8,7 @@ import cn.bakamc.folia.event.entity.EntityChangedBlockEventListener
 import cn.bakamc.folia.event.registerEvent
 import cn.bakamc.folia.flight_energy.FlightEnergyManager
 import cn.bakamc.folia.item.SpecialItemManager
+import cn.bakamc.folia.messagechannel.MessageChannels
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -37,7 +38,7 @@ class BakaMCPlugin : JavaPlugin(), Bakamc {
     override val bakaVersion: String
         get() = BuildConstants.VERSION
 
-    override val log: Logger = LoggerFactory.getLogger(this::class.java)
+    override val log: Logger = LoggerFactory.getLogger(bakaName)
 
     override fun onEnable() {
         instance = this
@@ -61,6 +62,8 @@ class BakaMCPlugin : JavaPlugin(), Bakamc {
             Configs.step(dataFolder.toPath())
         }
 
+        MessageChannels.register(server)
+
         registerCommand()
 
         registerEvent()
@@ -80,7 +83,7 @@ class BakaMCPlugin : JavaPlugin(), Bakamc {
 
     }
 
-    fun setupEconomy(): Boolean {
+    private fun setupEconomy(): Boolean {
         if (server.pluginManager.getPlugin("Vault") == null) {
             return false
         }

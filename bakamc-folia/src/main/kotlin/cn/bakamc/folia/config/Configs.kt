@@ -1,7 +1,9 @@
 package cn.bakamc.folia.config
 
+import cn.bakamc.common.ServerInfo
 import cn.bakamc.common.config.component.backup
 import cn.bakamc.common.config.component.generateTemp
+import cn.bakamc.common.config.item.serverInfo
 import cn.bakamc.folia.BakaMCPlugin
 import cn.bakamc.folia.config.item.BlockConfig
 import cn.bakamc.folia.util.logger
@@ -30,7 +32,7 @@ object Configs : ConfigManagerImpl(BakaMCPlugin.instance.bakaName) {
 
         runCatching {
             load()
-            if (this.needSave) {
+            if (this.savable()) {
                 save()
             }
         }.onFailure {
@@ -39,12 +41,17 @@ object Configs : ConfigManagerImpl(BakaMCPlugin.instance.bakaName) {
         }
     }
 
-    override fun configureSerializable() {
-        addConfigSerializable(DatabaseConfig)
-        addConfigSerializable(MiscConfig)
-        addConfigSerializable(FlightEnergyConfig)
-        addConfigSerializable(BlockConfig)
-        addConfigSerializable(EntityConfig)
-    }
+    val SERVER_INFO by serverInfo("server_info", ServerInfo("server_name"))
+
+    val DATABASE_CONFIG = addConfig(DatabaseConfig)
+
+    val MISC_CONFIG = addConfig(MiscConfig)
+
+    val FLIGHT_ENERGY_CONFIG = addConfig(FlightEnergyConfig)
+
+    val BLOCK_CONFIG = addConfig(BlockConfig)
+
+    val ENTITY_CONFIG = addConfig(EntityConfig)
+
 
 }

@@ -1,5 +1,6 @@
 package cn.bakamc.folia.flight_energy
 
+import cn.bakamc.folia.config.FlightEnergyConfig
 import cn.bakamc.folia.config.FlightEnergyConfig.MAX_ENERGY
 import cn.bakamc.folia.db.table.FlightEnergy
 import moe.forpleuvoir.nebula.common.util.clamp
@@ -8,7 +9,6 @@ import org.bukkit.Server
 import org.bukkit.boss.KeyedBossBar
 import org.bukkit.entity.Player
 import java.util.*
-import cn.bakamc.folia.config.FlightEnergyConfig.EnergyBar as Bar
 
 class EnergyBar private constructor(
     private val server: Server,
@@ -29,7 +29,7 @@ class EnergyBar private constructor(
     var key: NamespacedKey = NamespacedKey.minecraft("energy_bar_${player.name.lowercase(Locale.ENGLISH)}")
 
     init {
-        bar = server.createBossBar(key, title(), Bar.COLOR, Bar.STYLE)
+        bar = server.createBossBar(key, title(), FlightEnergyConfig.EnergyBar.COLOR, FlightEnergyConfig.EnergyBar.STYLE)
         bar.isVisible = false
         bar.progress = progress
         bar.addPlayer(player)
@@ -44,7 +44,7 @@ class EnergyBar private constructor(
     private val progress get() = (flightEnergy.energy / MAX_ENERGY).clamp(0.0, 1.0)
 
     private fun title(): String {
-        return Bar.TITLE.format(flightEnergy.energy, flightEnergy.energy - lastEnergy, MAX_ENERGY)
+        return FlightEnergyConfig.EnergyBar.TITLE.format(flightEnergy.energy, flightEnergy.energy - lastEnergy, MAX_ENERGY)
     }
 
     fun setVisible(visible: Boolean) {

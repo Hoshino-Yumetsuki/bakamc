@@ -1,10 +1,11 @@
 package cn.bakamc.proxy.config
 
+import cn.bakamc.common.ServerInfo
 import cn.bakamc.common.config.component.backup
 import cn.bakamc.common.config.component.generateTemp
+import cn.bakamc.common.config.item.serverInfo
 import cn.bakamc.proxy.BakamcProxyInstance
 import cn.bakamc.proxy.BakamcProxyInstance.logger
-import moe.forpleuvoir.nebula.config.annotation.ConfigMeta
 import moe.forpleuvoir.nebula.config.manager.ConfigManagerImpl
 import moe.forpleuvoir.nebula.config.manager.component.localConfig
 import moe.forpleuvoir.nebula.config.manager.components
@@ -29,7 +30,7 @@ object Configs : ConfigManagerImpl(BakamcProxyInstance.INSTANCE.bakaName) {
         init()
         runCatching {
             load()
-            if (this.needSave) {
+            if (this.savable()) {
                 save()
             }
         }.onFailure {
@@ -38,16 +39,14 @@ object Configs : ConfigManagerImpl(BakamcProxyInstance.INSTANCE.bakaName) {
         }
     }
 
-    @ConfigMeta(order = 0)
-    val DataBase = DatabaseConfig
+    val SERVER_INFO by serverInfo("server_info", ServerInfo("serve_name"))
 
-    @ConfigMeta(order = 1)
-    val Misc = MiscConfig
+    val DATA_BASE = addConfig(DatabaseConfig)
 
-    @ConfigMeta(order = 2)
-    val Bot = BotConfig
+    val Misc = addConfig(MiscConfig)
 
-    @ConfigMeta(order = 3)
-    val IpRestrict = IpRestrictConfig
+    val Bot = addConfig(BotConfig)
+
+    val IP_RESTRICT = addConfig(IpRestrictConfig)
 
 }

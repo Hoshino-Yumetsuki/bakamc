@@ -7,9 +7,11 @@ import cn.bakamc.folia.service.PlayerService
 import cn.bakamc.folia.util.asNMS
 import cn.bakamc.folia.util.ioLaunch
 import cn.bakamc.folia.util.logger
+import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
+import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.player.*
 
 object PlayerEventListener : Listener {
@@ -73,8 +75,8 @@ object PlayerEventListener : Listener {
             item.asNMS.tag?.getString(BAKAMC_INTERACT_TAG_NAME)?.let { tag ->
                 val list = tag.split(",")
                 when (event.action) {
-                    Action.LEFT_CLICK_BLOCK  -> "LEFT_CLICK_BLOCK" in list
-                    Action.RIGHT_CLICK_BLOCK -> "RIGHT_CLICK_BLOCK" in list
+                    Action.LEFT_CLICK_BLOCK  -> "LEFT_CLICK_BLOCK" in list || "LEFT_CLICK_BLOCK:${event.clickedBlock!!.type.key.key}" in list
+                    Action.RIGHT_CLICK_BLOCK -> "RIGHT_CLICK_BLOCK" in list || "LEFT_CLICK_BLOCK:${event.clickedBlock!!.type.key.key}" in list
                     Action.LEFT_CLICK_AIR    -> "LEFT_CLICK_AIR" in list
                     Action.RIGHT_CLICK_AIR   -> "RIGHT_CLICK_AIR" in list
                     Action.PHYSICAL          -> "PHYSICAL" in list
@@ -83,4 +85,20 @@ object PlayerEventListener : Listener {
         }
     }
 
+    @EventHandler
+    fun onPlayerAttackEntity(event: EntityDamageByEntityEvent) {
+        if (event.damager is Player) {
+            val player = event.damager as Player
+            if (ENABLE_PLAYER_INTERACT_MODIFY) {
+                player.inventory.itemInMainHand.asNMS.tag?.getString(BAKAMC_INTERACT_TAG_NAME)?.let { tag ->
+                    val list = tag.split(",")
+                    if ("ATTACK_ENTITY" in list || "ATTACK_ENTITY:${event.entityType.key.key}" in list) {
+                        event.isCancelled = true
+                    }
+                }
+            }
+        }
+    }
+
 }
+

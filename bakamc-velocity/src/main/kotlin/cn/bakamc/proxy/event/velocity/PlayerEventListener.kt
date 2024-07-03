@@ -36,11 +36,6 @@ object PlayerEventListener {
         BakamcProxyInstance.runDelayed(500.milliseconds) {
             BakamcProxyInstance.server.allServers.forEach { server ->
                 server.sendMessage(BakaText.parse(Utils.replace(PLAYER_JOIN_MESSAGE, currentServer, player)))
-//                server.sendMessage(
-//                    player.asComponent()
-//                        .append(Component.text(" 已加入 ").applyFallbackStyle(TextColor.color(0x4EE983)))
-//                        .append(currentServer.asComponent(SERVER_NAME_MAPPING))
-//                )
             }
         }
     }
@@ -53,10 +48,6 @@ object PlayerEventListener {
         BakamcProxyInstance.runTask {
             BakamcProxyInstance.server.allServers.forEach { server ->
                 server.sendMessage(BakaText.parse(Utils.replace(PLAYER_QUIT_MESSAGE, server, player)))
-//                server.sendMessage(
-//                    player.asComponent()
-//                        .append(Component.text(" 已退出服务器").applyFallbackStyle(TextColor.color(0xE9685C)))
-//                )
             }
         }
     }

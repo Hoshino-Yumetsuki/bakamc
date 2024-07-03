@@ -37,8 +37,10 @@ subprojects {
     }
 
     kotlin {
-        compilerOptions.suppressWarnings = true
-        compilerOptions.jvmTarget.set(JvmTarget.JVM_21)
+        compilerOptions{
+            jvmTarget.set(JvmTarget.JVM_21)
+            suppressWarnings = true
+        }
     }
 
     tasks {

@@ -2,6 +2,7 @@ package cn.bakamc.common.config.item
 
 import cn.bakamc.common.text.bakatext.modifier.DecorationMapping
 import moe.forpleuvoir.nebula.config.ConfigBase
+import moe.forpleuvoir.nebula.config.container.ConfigContainer
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
@@ -32,3 +33,5 @@ class ConfigDecorationMapping(
     }
 
 }
+
+fun ConfigContainer.decorationMapping(key: String, defaultValue: DecorationMapping) = addConfig(ConfigDecorationMapping(key, defaultValue))

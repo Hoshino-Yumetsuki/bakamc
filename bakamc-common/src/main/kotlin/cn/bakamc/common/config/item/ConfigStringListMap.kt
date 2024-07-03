@@ -3,6 +3,7 @@ package cn.bakamc.common.config.item
 import moe.forpleuvoir.nebula.common.util.NotifiableArrayList
 import moe.forpleuvoir.nebula.common.util.NotifiableLinkedHashMap
 import moe.forpleuvoir.nebula.config.ConfigBase
+import moe.forpleuvoir.nebula.config.container.ConfigContainer
 import moe.forpleuvoir.nebula.config.item.ConfigMutableMapValue
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
@@ -56,3 +57,5 @@ class ConfigStringListMap(
         }.getOrThrow()
     }
 }
+
+fun ConfigContainer.stringListMap(key: String, default: Map<String, List<String>>) = addConfig(ConfigStringListMap(key, default))

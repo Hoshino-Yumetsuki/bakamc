@@ -63,7 +63,7 @@ internal fun FlyCommand(): Command = Command("fly") {
                         ctx.getArg("player")!!.let { name ->
                             ctx.sender.server.onlinePlayers.find { it.name == name }?.let { player ->
                                 player.updateEnergy(energy)
-                                ctx.success("成功设置玩家{}的飞行能量为[{}]", player, energy)
+                                ctx.success("成功将玩家{}的飞行能量设置为[{}]", player, energy)
                             }
                         }
                     }

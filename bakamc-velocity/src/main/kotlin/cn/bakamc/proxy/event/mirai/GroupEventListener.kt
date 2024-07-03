@@ -1,8 +1,14 @@
 package cn.bakamc.proxy.event.mirai
 
-import cn.bakamc.proxy.BakamcProxyInstance
+import cn.bakamc.common.ServerInfo
+import cn.bakamc.common.messagechannel.MessageData
+import cn.bakamc.common.messagechannel.ServerConsumer
+import cn.bakamc.proxy.BakamcProxyInstance.logger
+import cn.bakamc.proxy.BakamcProxyInstance.server
 import cn.bakamc.proxy.config.BotConfig.BOTS
 import cn.bakamc.proxy.config.BotConfig.CONSOLE_COMMAND_EXECUTORS
+import cn.bakamc.proxy.config.BotConfig.GROUPS
+import cn.bakamc.proxy.config.Configs.SERVER_INFO
 import cn.bakamc.proxy.config.WhiteListConfigs.BIND_COMMAND
 import cn.bakamc.proxy.config.WhiteListConfigs.FORCE_UPDATE_MEMBER_CARD
 import cn.bakamc.proxy.config.WhiteListConfigs.RENAME_AFTER_BIND
@@ -10,13 +16,14 @@ import cn.bakamc.proxy.config.WhiteListConfigs.RENAME_EXP
 import cn.bakamc.proxy.config.WhiteListConfigs.VERIFY_CODE_LENGTH
 import cn.bakamc.proxy.config.WhiteListConfigs.VERIFY_GROUP
 import cn.bakamc.proxy.feature.white_list.WhiteListManager
+import cn.bakamc.proxy.messagechannel.MessageChannels.botCmdChannel
+import cn.bakamc.proxy.messagechannel.MessageChannels.identifier
 import cn.bakamc.proxy.services.PlayerServices
 import com.velocitypowered.api.event.Subscribe
 import me.dreamvoid.miraimc.velocity.event.group.member.MiraiMemberCardChangeEvent
 import me.dreamvoid.miraimc.velocity.event.group.member.MiraiMemberLeaveEvent
 import me.dreamvoid.miraimc.velocity.event.message.passive.MiraiGroupMessageEvent
 import moe.forpleuvoir.nebula.common.ioLaunch
-import moe.forpleuvoir.nebula.common.pick
 
 
 object GroupEventListener {
@@ -38,14 +45,16 @@ object GroupEventListener {
         }
     }
 
+    private val consoleCommandRegex = Regex("c(@([^/]+)/)(.*)")
+
     @Subscribe
     fun onGroupMessage(event: MiraiGroupMessageEvent) {
-        if (event.groupID == VERIFY_GROUP && event.botID in BOTS) {
+        if (event.groupID in GROUPS && event.botID in BOTS) {
             val message = event.message
             when {
-                message.startsWith(BIND_COMMAND) -> onBind(event)
-                message.startsWith("updateCard") -> updateCard(event)
-                message.startsWith("c/")         -> consoleCommand(event)
+                message.startsWith(BIND_COMMAND)     -> onBind(event)
+                message.startsWith("updateCard")     -> updateCard(event)
+                message.matches(consoleCommandRegex) -> consoleCommand(event)
             }
         }
     }
@@ -53,15 +62,27 @@ object GroupEventListener {
     private fun consoleCommand(event: MiraiGroupMessageEvent) {
         if (event.senderID in CONSOLE_COMMAND_EXECUTORS) {
             val message = event.message
-            val cmd = message.substring(1)
-            val source = BakamcProxyInstance.server.consoleCommandSource
-            BakamcProxyInstance.server.commandManager.executeImmediatelyAsync(source, cmd)
-                .thenAccept { event.reply(it.pick("指令执行成功", "指令执行失败")) }
+            consoleCommandRegex.find(message)?.let { matchResult ->
+                val serverId = matchResult.groupValues[2]
+                val cmd = matchResult.groupValues[3]
+                logger.info("收到指令:[cmd:${cmd},server_id:${serverId}]")
+                if (serverId == SERVER_INFO.serverName) {
+                    server.commandManager.executeImmediatelyAsync(server.consoleCommandSource, cmd)
+                } else {
+                    //由子服执行
+                    server.allServers.forEach {
+                        it.sendPluginMessage(
+                            botCmdChannel.identifier,
+                            MessageData(ServerConsumer(ServerInfo(serverId)), cmd.toByteArray(Charsets.UTF_8)).toBytes()
+                        )
+                    }
+                }
+            }
         }
     }
 
     private fun updateCard(event: MiraiGroupMessageEvent) {
-        if (event.senderPermission == 0) return
+        if (event.senderPermission == 0 || event.groupID != VERIFY_GROUP) return
         val message = event.message
         val id = message.substring("updateCard".length + 1)
         runCatching {
@@ -101,8 +122,9 @@ object GroupEventListener {
     }
 
     private fun onBind(event: MiraiGroupMessageEvent) {
+        if (event.groupID != VERIFY_GROUP) return
         val message = event.message
-        BakamcProxyInstance.logger.info("绑定指令$message")
+        logger.info("绑定指令$message")
         val code = message.substring(BIND_COMMAND.length + 1)
         @Suppress("RegExpSimplifiable")
         if (code.matches("^[A-Z0-9]{${VERIFY_CODE_LENGTH}}\$".toRegex())) {
