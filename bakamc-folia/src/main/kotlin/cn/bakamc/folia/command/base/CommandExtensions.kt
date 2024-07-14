@@ -42,7 +42,7 @@ fun CommandNode.execute(executor: (CommandContext<out CommandSender>) -> Unit): 
 inline fun <reified T : CommandSender> CommandNode.execute(noinline executor: (CommandContext<out T>) -> Unit): CommandNode {
     this.executor = executor@{
         if (it.sender !is T) {
-            it.fail("只有[{}]可以使用此命令!",T::class.java.simpleName)
+            it.fail("只有[{}]可以使用此命令!", T::class.java.simpleName)
             return@executor
         }
         executor.invoke(it as CommandContext<out T>)

@@ -3,54 +3,38 @@ package cn.bakamc.common.util
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.HSVColor
+import moe.forpleuvoir.nebula.common.util.clamp
 
-fun HSVColor.gradient(end: HSVColor, sliceSize: Int): List<HSVColor> {
-    return gradientHSVColor(this, end, sliceSize)
+fun HSVColor.gradient(to: HSVColor, steps: Int): List<HSVColor> {
+    return gradientHSVColor(this, to, steps)
 }
 
-fun ARGBColor.gradient(end: ARGBColor, sliceSize: Int): List<ARGBColor> {
-    return if (this is HSVColor && end is HSVColor)
-        this.gradient(end, sliceSize)
+fun ARGBColor.gradient(to: ARGBColor, steps: Int): List<ARGBColor> {
+    return if (this is HSVColor && to is HSVColor)
+        this.gradient(to, steps)
     else
-        gradientColor(this, end, sliceSize)
+        gradientColor(this, to, steps)
 }
 
 @Suppress("DuplicatedCode")
-fun gradientHSVColor(start: HSVColor, end: HSVColor, sliceSize: Int): List<HSVColor> {
-    check(sliceSize > 0) { "slice must be greater than 0" }
-    if (sliceSize == 1) return listOf(HSVColor(start.hue, start.saturation, start.value, start.value, false))
-    val hueSlice = (end.hue - start.hue) / sliceSize
-    val saturationSlice = (end.saturation - start.saturation) / sliceSize
-    val valueSlice = (end.value - start.value) / sliceSize
-    val alphaSlice = (end.alpha - start.alpha) / sliceSize
+fun gradientHSVColor(from: HSVColor, to: HSVColor,steps: Int): List<HSVColor> {
+    check(steps > 0) { "steps must be greater than 0" }
+    if (steps == 1) return listOf(HSVColor(from.hue, from.saturation, from.value, from.value, false))
+
     return buildList {
-        repeat(sliceSize) {
-            add(HSVColor(start.hue, start.saturation, start.value, start.value, false).also { color ->
-                color.hue = start.hue + (hueSlice * it)
-                color.saturation = start.saturation + (saturationSlice * it)
-                color.value = start.value + (valueSlice * it)
-                color.alpha = start.alpha + (alphaSlice * it)
-            })
+        repeat(steps) { index ->
+            add(from.lerp(to, (index * (1f / (steps - 1))).clamp(0f, 1f)))
         }
     }
 }
 
 @Suppress("DuplicatedCode")
-fun gradientColor(start: ARGBColor, end: ARGBColor, sliceSize: Int): List<ARGBColor> {
-    check(sliceSize > 0) { "slice must be greater than 0" }
-    if (sliceSize == 1) return listOf(Color(start.red, start.green, start.blue, start.alpha, false))
-    val redSlice = (end.redF - start.redF) / sliceSize
-    val greenSlice = (end.greenF - start.greenF) / sliceSize
-    val blueSlice = (end.blueF - start.blueF) / sliceSize
-    val alphaSlice = (end.alpha - start.alpha) / sliceSize
+fun gradientColor(from: ARGBColor, to: ARGBColor, steps: Int): List<ARGBColor> {
+    check(steps > 0) { "steps must be greater than 0" }
+    if (steps == 1) return listOf(Color(from.red, from.green, from.blue, from.alpha, false))
     return buildList {
-        repeat(sliceSize) {
-            add(Color(start.red, start.green, start.blue, start.alpha, false).also { color ->
-                color.redF = start.redF + (redSlice * it)
-                color.greenF = start.greenF + (greenSlice * it)
-                color.blueF = start.blueF + (blueSlice * it)
-                color.alpha = start.alpha + (alphaSlice * it)
-            })
+        repeat(steps) { index ->
+            add(from.lerp(to, (index * (1f / (steps - 1))).clamp(0f, 1f)))
         }
     }
 }

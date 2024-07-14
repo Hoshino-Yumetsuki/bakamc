@@ -30,6 +30,9 @@ fun MiscCommand(): Command = Command("bakamc") {
             it.feedback(it.sender.world.name)
         }
     }
+    "chunk_host"{
+
+    }
 //    literal("world") {
 //        execute<Player> {
 //            val text = literalText(it.sender.world.key.toString())

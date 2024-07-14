@@ -27,7 +27,7 @@ suspend fun Configs.testInit(path: Path) {
     init()
     runCatching {
         Configs.load()
-        if (this.needSave) {
+        if (this.savable()) {
             Configs.save()
         }
     }.onFailure {

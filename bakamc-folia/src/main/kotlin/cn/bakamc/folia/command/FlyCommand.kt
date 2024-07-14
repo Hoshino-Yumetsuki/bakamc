@@ -25,8 +25,10 @@ import org.bukkit.entity.Player
 
 @Suppress("FunctionName")
 internal fun FlyCommand(): Command = Command("fly") {
+
     execute<Player>(toggleFly)
-    literal("info") {
+
+    "info" {
         argument("player") {
             suggestions = null
             execute { ctx ->
@@ -38,21 +40,24 @@ internal fun FlyCommand(): Command = Command("fly") {
             }
         }
     }
-    literal("enable") {
+
+    "enable" {
         execute<Player>(toggleFly)
         argument("enabled") {
             suggestion { listOf("true", "false") }
             execute<Player>(toggleFly)
         }
     }
-    literal("barvisible") {
+
+    "barvisible" {
         execute<Player>(::toggleBarVisible)
         argument("visible") {
             suggestion { listOf("true", "false") }
             execute<Player>(::toggleBarVisible)
         }
     }
-    literal("set") {
+
+    "set" {
         permission { it.sender.isOp }
         argument("player") {
             suggestions = null
@@ -72,7 +77,7 @@ internal fun FlyCommand(): Command = Command("fly") {
         }
     }
 
-    literal("add") {
+    "add" {
         permission { it.sender.isOp }
         argument("player") {
             suggestions = null
@@ -95,7 +100,7 @@ internal fun FlyCommand(): Command = Command("fly") {
         }
     }
 
-    literal("addAll") {
+    "addAll" {
         permission { it.sender.isOp }
         argument("energy") {
             execute { ctx ->
@@ -107,7 +112,7 @@ internal fun FlyCommand(): Command = Command("fly") {
             }
         }
     }
-    literal("addOnlinePlayer") {
+    "addOnlinePlayer" {
         permission { it.sender.isOp }
         argument("energy") {
             execute { ctx ->
@@ -118,7 +123,7 @@ internal fun FlyCommand(): Command = Command("fly") {
         }
     }
 
-    literal("recharge") {
+    "recharge" {
         execute(recharge)
         argument("energy") {
             suggestionBuild { ctx, _ ->
@@ -129,7 +134,7 @@ internal fun FlyCommand(): Command = Command("fly") {
             execute<Player>(recharge)
         }
     }
-    literal("exchange") {
+    "exchange" {
         argument("money_item") {
             suggestion { SpecialItemManager.specifyType(MONEY_ITEM.keys).keys.toList() }
             execute(exchange)
@@ -147,7 +152,7 @@ internal fun FlyCommand(): Command = Command("fly") {
             }
         }
     }
-    literal("energy") {
+    "energy" {
         suggestion { null }
         execute<Player> {
             it.info("你当前的飞行能量为[{}]", it.sender.energy)
@@ -209,7 +214,7 @@ private val recharge: (CommandContext<out Player>) -> Unit = { ctx ->
 
                         FAILURE         -> ctx.fail("购买失败[{}]", response.errorMessage)
                         NOT_IMPLEMENTED -> ctx.fail("购买失败,经济插件未加载,请联系服务器管理员")
-                        else                                         -> ctx.fail("未知错误")
+                        else            -> ctx.fail("未知错误")
                     }
                 }.onFailure {
                     //出现异常

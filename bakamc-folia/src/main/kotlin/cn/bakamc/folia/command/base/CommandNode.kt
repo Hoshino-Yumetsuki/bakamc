@@ -97,5 +97,12 @@ abstract class CommandNode {
         }
     }
 
+    operator fun String.invoke(scope: CommandNode.() -> Unit): CommandNode {
+        return LiteralCommandSubNode(this, this@CommandNode).apply {
+            parent.append(this)
+            scope(this)
+        }
+    }
+
 }
 

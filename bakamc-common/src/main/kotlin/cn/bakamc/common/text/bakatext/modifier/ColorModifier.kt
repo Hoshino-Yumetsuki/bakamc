@@ -59,10 +59,14 @@ object ColorModifier : Modifier {
 
     private fun <C : ARGBColor> gradientText(content: String, start: C, end: C): TextComponent {
         return text { build ->
-            start.gradient(end, content.length).forEachIndexed { index, color ->
-                build.append(text(content[index].toString(), style {
-                    color(TextColor.color(color.rgb))
-                }))
+            content.takeIf {
+                it.isNotEmpty()
+            }?.let { text ->
+                start.gradient(end, text.length).forEachIndexed { index, color ->
+                    build.append(text(text[index].toString(), style {
+                        color(TextColor.color(color.rgb))
+                    }))
+                }
             }
         }
     }

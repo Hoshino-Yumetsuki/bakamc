@@ -3,6 +3,10 @@ plugins {
     alias(libs.plugins.runPaper)
 }
 
+repositories{
+    maven { url = uri("https://maven.pkg.github.com/LuminolMC/Luminol") }
+}
+
 dependencies {
     implementation(project(":bakamc-common"))
 
@@ -10,6 +14,8 @@ dependencies {
 
     compileOnly(libs.vaultApi) { isTransitive = false }
     implementation(libs.adventureExtraKotlin)
+
+//    implementation("me.earthme.luminol:luminol-api:1.20.4-R0.1-SNAPSHOT")
 
     //data base
     runtimeOnly(libs.mysql)
