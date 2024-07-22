@@ -38,4 +38,25 @@ object MiscConfig : ConfigContainerImpl("misc") {
         )
     )
 
+    val backpackBlockEntityUse = addConfig(BackpackBlockEntityUse)
+
+    object BackpackBlockEntityUse : ConfigContainerImpl("backpack_block_entity_use") {
+
+        val CRAFTING_TABLE by boolean("crafting_table", true)
+
+        val STONECUTTER by boolean("stonecutter", true)
+
+        val CARTOGRAPHY_TABLE by boolean("cartography_table", true)
+
+        val GRINDSTONE by boolean("grindstone", true)
+
+        val LOOM by boolean("loom", true)
+
+        val SMITHING_TABLE by boolean("smithing_table", true)
+
+        val ENDER_CHEST by boolean("ender_chest", true)
+
+    }
+
+
 }

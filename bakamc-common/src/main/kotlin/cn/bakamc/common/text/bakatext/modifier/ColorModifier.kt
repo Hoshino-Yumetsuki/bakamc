@@ -8,6 +8,8 @@ import net.kyori.adventure.extra.kotlin.style
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.format.TextColor
+import java.text.BreakIterator
+import java.util.*
 
 object ColorModifier : Modifier {
     override fun modifier(exp: String): ((TextComponent) -> TextComponent)? {
@@ -59,16 +61,29 @@ object ColorModifier : Modifier {
 
     private fun <C : ARGBColor> gradientText(content: String, start: C, end: C): TextComponent {
         return text { build ->
-            content.takeIf {
-                it.isNotEmpty()
-            }?.let { text ->
-                start.gradient(end, text.length).forEachIndexed { index, color ->
-                    build.append(text(text[index].toString(), style {
-                        color(TextColor.color(color.rgb))
-                    }))
-                }
+            val texts = splitText(content)
+            start.gradient(end, texts.size).forEachIndexed { index, color ->
+                build.append(text(texts[index], style {
+                    color(TextColor.color(color.rgb))
+                }))
             }
         }
     }
+
+    private fun splitText(text: String): List<String> = buildList {
+        val it: BreakIterator = BreakIterator.getCharacterInstance(Locale.US)
+        it.setText(text)
+        var start = it.first()
+        var end = it.next()
+
+        while (end != BreakIterator.DONE) {
+            val emoji = text.substring(start, end)
+            add(emoji)
+
+            start = end
+            end = it.next()
+        }
+    }
+
 
 }
