@@ -23,6 +23,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.*
+import org.bukkit.inventory.ItemStack
 
 object PlayerEventListener : Listener {
 
@@ -78,11 +79,15 @@ object PlayerEventListener : Listener {
 
     private const val BAKAMC_INTERACT_TAG_NAME = "bakamc_interact"
 
+    private val ItemStack.bakaInteractTag
+        get() = asNMS.tag?.getString(BAKAMC_INTERACT_TAG_NAME)
+
     @EventHandler
     fun onPlayerInteractEvent(event: PlayerInteractEvent) {
+        //------------ 交互限制 ------------\\
         if (!ENABLE_PLAYER_INTERACT_MODIFY) return
         event.item?.let { item ->
-            item.asNMS.tag?.getString(BAKAMC_INTERACT_TAG_NAME)?.let { tag ->
+            item.bakaInteractTag?.let { tag ->
                 val list = tag.split(",")
                 when (event.action) {
                     Action.LEFT_CLICK_BLOCK  -> "LEFT_CLICK_BLOCK" in list || "LEFT_CLICK_BLOCK:${event.clickedBlock!!.type.key.key}" in list
@@ -93,6 +98,7 @@ object PlayerEventListener : Listener {
                 }.takeIf { it }?.let { event.isCancelled = true }
             }
         }
+        //------------ 直接打开功能方块 ------------\\
         if (event.action == Action.RIGHT_CLICK_AIR) {
             event.item?.let { item ->
                 when (item.type) {
@@ -135,7 +141,7 @@ object PlayerEventListener : Listener {
         if (!ENABLE_PLAYER_INTERACT_MODIFY) return
         if (event.damager is Player) {
             val player = event.damager as Player
-            player.inventory.itemInMainHand.asNMS.tag?.getString(BAKAMC_INTERACT_TAG_NAME)?.let { tag ->
+            player.inventory.itemInMainHand.bakaInteractTag?.let { tag ->
                 val list = tag.split(",")
                 if ("ATTACK_ENTITY" in list || "ATTACK_ENTITY:${event.entityType.key.key}" in list) {
                     event.isCancelled = true
@@ -148,6 +154,7 @@ object PlayerEventListener : Listener {
     fun onInventoryClick(event: InventoryClickEvent) {
         if (event.click == ClickType.RIGHT && event.whoClicked is Player) {
             val player = event.whoClicked as Player
+            if(player.hasPermission(""))
             event.currentItem?.let { item ->
                 when (item.type) {
                     Material.CRAFTING_TABLE    -> if (CRAFTING_TABLE) {

@@ -6,4 +6,5 @@ dependencies {
     compileOnly(libs.adventureApi)
     implementation(libs.adventureExtraKotlin)
     implementation(libs.slf4j)
+    testImplementation(kotlin("test"))
 }
