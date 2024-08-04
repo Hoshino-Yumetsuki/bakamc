@@ -20,7 +20,7 @@ internal constructor(
     var level: Int = -1
         private set
 
-    val commandChain: MutableList<CommandNode> = mutableListOf()
+    val commandChain: MutableSet<CommandNode> = mutableSetOf()
 
     /**
      * 正在输入的节点
@@ -30,7 +30,10 @@ internal constructor(
 
     fun next(currentNode: CommandNode): CommandContext<S> {
         level++
-        commandChain.add(currentNode)
+        if (commandChain.isNotEmpty()) {
+            if (commandChain.last() != currentNode)
+                commandChain.add(currentNode)
+        } else commandChain.add(currentNode)
         return this
     }
 
@@ -59,7 +62,7 @@ internal constructor(
             return buildString {
                 append("/")
                 commandChain.forEachIndexed { index, it ->
-                    append(it.command)
+                    append(if (it is ArgumentCommandSubNode) "<${it.command}>" else it.command)
                     if (index != commandChain.size - 1) append(" ")
                 }
             }

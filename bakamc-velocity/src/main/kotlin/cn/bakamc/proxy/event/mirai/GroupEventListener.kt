@@ -149,11 +149,23 @@ object GroupEventListener {
 
 
     @Subscribe
-    fun onQuitGroup(event: MiraiMemberLeaveEvent) {
+    fun onQuitGroup(event: MiraiMemberLeaveEvent.Quit) {
         if (event.groupID == VERIFY_GROUP && event.botID in BOTS) {
-            val id = event.member.id
+            val id = event.targetID
             ioLaunch {
                 WhiteListManager.onMemberQuit(id)
+                logger.info("玩家[${event.memberNick}(${event.targetID})]退出QQ群,将移除白名单")
+            }
+        }
+    }
+
+    @Subscribe
+    fun onQuitGroup(event: MiraiMemberLeaveEvent.Kick) {
+        if (event.groupID == VERIFY_GROUP && event.botID in BOTS) {
+            val id = event.targetID
+            ioLaunch {
+                WhiteListManager.onMemberQuit(id)
+                logger.info("玩家[${event.memberNick}(${event.targetID})]被踢出QQ群,将移除白名单")
             }
         }
     }

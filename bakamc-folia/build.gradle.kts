@@ -3,9 +3,11 @@ plugins {
     alias(libs.plugins.runPaper)
 }
 
-repositories{
-    maven { url = uri("https://maven.pkg.github.com/LuminolMC/Luminol") }
+repositories {
+//    maven { url = uri("https://maven.pkg.github.com/LuminolMC/Luminol") }
 }
+
+paperweight.reobfArtifactConfiguration = io.papermc.paperweight.userdev.ReobfArtifactConfiguration.MOJANG_PRODUCTION
 
 dependencies {
     implementation(project(":bakamc-common"))
@@ -31,6 +33,21 @@ val props = mapOf(
 )
 
 tasks {
+
+    register<Copy>("pluginJar") {
+        dependsOn(reobfJar)
+        mustRunAfter(reobfJar)
+        val outPath = "$rootDir/pluginJars/$version"
+        val name = reobfJar.get().outputJar.get().asFile.name
+        val newName = "${project.name}-$version-minecraft.${libs.versions.minecraftVersion.get()}.jar"
+        from("build/libs")
+        into(outPath)
+        include(name)
+        doLast {
+            delete(file("$outPath/$newName"))
+            file("$outPath/$name").renameTo(file("$outPath/$newName"))
+        }
+    }
 
     runServer {
         minecraftVersion(libs.versions.minecraftVersion.get())

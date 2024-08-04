@@ -1,19 +1,14 @@
 package cn.bakamc.folia.event.entity
 
 import cn.bakamc.folia.config.MiscConfig
-import cn.bakamc.folia.config.MiscConfig.BackpackBlockEntityUse.CARTOGRAPHY_TABLE
-import cn.bakamc.folia.config.MiscConfig.BackpackBlockEntityUse.CRAFTING_TABLE
-import cn.bakamc.folia.config.MiscConfig.BackpackBlockEntityUse.ENDER_CHEST
-import cn.bakamc.folia.config.MiscConfig.BackpackBlockEntityUse.GRINDSTONE
-import cn.bakamc.folia.config.MiscConfig.BackpackBlockEntityUse.LOOM
-import cn.bakamc.folia.config.MiscConfig.BackpackBlockEntityUse.SMITHING_TABLE
-import cn.bakamc.folia.config.MiscConfig.BackpackBlockEntityUse.STONECUTTER
 import cn.bakamc.folia.config.MiscConfig.ENABLE_PLAYER_INTERACT_MODIFY
+import cn.bakamc.folia.config.MiscConfig.quick_block_use
 import cn.bakamc.folia.flight_energy.FlightEnergyManager
 import cn.bakamc.folia.service.PlayerService
 import cn.bakamc.folia.util.asNMS
 import cn.bakamc.folia.util.ioLaunch
 import cn.bakamc.folia.util.logger
+import moe.forpleuvoir.nebula.common.ifc
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -85,52 +80,26 @@ object PlayerEventListener : Listener {
     @EventHandler
     fun onPlayerInteractEvent(event: PlayerInteractEvent) {
         //------------ 交互限制 ------------\\
-        if (!ENABLE_PLAYER_INTERACT_MODIFY) return
-        event.item?.let { item ->
-            item.bakaInteractTag?.let { tag ->
-                val list = tag.split(",")
-                when (event.action) {
-                    Action.LEFT_CLICK_BLOCK  -> "LEFT_CLICK_BLOCK" in list || "LEFT_CLICK_BLOCK:${event.clickedBlock!!.type.key.key}" in list
-                    Action.RIGHT_CLICK_BLOCK -> "RIGHT_CLICK_BLOCK" in list || "LEFT_CLICK_BLOCK:${event.clickedBlock!!.type.key.key}" in list
-                    Action.LEFT_CLICK_AIR    -> "LEFT_CLICK_AIR" in list
-                    Action.RIGHT_CLICK_AIR   -> "RIGHT_CLICK_AIR" in list
-                    Action.PHYSICAL          -> "PHYSICAL" in list
-                }.takeIf { it }?.let { event.isCancelled = true }
+        if (ENABLE_PLAYER_INTERACT_MODIFY) {
+            event.item?.let { item ->
+                item.bakaInteractTag?.let { tag ->
+                    val list = tag.split(",")
+                    when (event.action) {
+                        Action.LEFT_CLICK_BLOCK  -> "LEFT_CLICK_BLOCK" in list || "LEFT_CLICK_BLOCK:${event.clickedBlock!!.type.key.key}" in list
+                        Action.RIGHT_CLICK_BLOCK -> "RIGHT_CLICK_BLOCK" in list || "LEFT_CLICK_BLOCK:${event.clickedBlock!!.type.key.key}" in list
+                        Action.LEFT_CLICK_AIR    -> "LEFT_CLICK_AIR" in list
+                        Action.RIGHT_CLICK_AIR   -> "RIGHT_CLICK_AIR" in list
+                        Action.PHYSICAL          -> "PHYSICAL" in list
+                    }.takeIf { it }?.let { event.isCancelled = true }
+                }
             }
         }
         //------------ 直接打开功能方块 ------------\\
         if (event.action == Action.RIGHT_CLICK_AIR) {
+            val player = event.player
             event.item?.let { item ->
-                when (item.type) {
-                    Material.CRAFTING_TABLE    -> if (CRAFTING_TABLE) {
-                        openCraftingTable(event.player)
-                    }
-
-                    Material.STONECUTTER       -> if (STONECUTTER) {
-                        openStonecutter(event.player)
-                    }
-
-                    Material.CARTOGRAPHY_TABLE -> if (CARTOGRAPHY_TABLE) {
-                        openCartographyTable(event.player)
-                    }
-
-                    Material.GRINDSTONE        -> if (GRINDSTONE) {
-                        openGrindstone(event.player)
-                    }
-
-                    Material.LOOM              -> if (LOOM) {
-                        openLoom(event.player)
-                    }
-
-                    Material.SMITHING_TABLE    -> if (SMITHING_TABLE) {
-                        openSmithingTable(event.player)
-                    }
-
-                    Material.ENDER_CHEST       -> if (ENDER_CHEST) {
-                        openEnderChest(event.player)
-                    }
-
-                    else                       -> return
+                quickUse(item, player).ifc {
+                    event.isCancelled = true
                 }
             }
         }
@@ -152,73 +121,92 @@ object PlayerEventListener : Listener {
 
     @EventHandler
     fun onInventoryClick(event: InventoryClickEvent) {
-        if (event.click == ClickType.RIGHT && event.whoClicked is Player) {
-            val player = event.whoClicked as Player
-            if(player.hasPermission(""))
+        val clicker = event.whoClicked
+        if (event.inventory.type in quick_block_use.INVENTORY_TYPE && event.click == ClickType.RIGHT && clicker is Player) {
             event.currentItem?.let { item ->
-                when (item.type) {
-                    Material.CRAFTING_TABLE    -> if (CRAFTING_TABLE) {
-                        openCraftingTable(player)
-                    }
-
-                    Material.STONECUTTER       -> if (STONECUTTER) {
-                        openStonecutter(player)
-                    }
-
-                    Material.CARTOGRAPHY_TABLE -> if (CARTOGRAPHY_TABLE) {
-                        openCartographyTable(player)
-                    }
-
-                    Material.GRINDSTONE        -> if (GRINDSTONE) {
-                        openGrindstone(player)
-                    }
-
-                    Material.LOOM              -> if (LOOM) {
-                        openLoom(player)
-                    }
-
-                    Material.SMITHING_TABLE    -> if (SMITHING_TABLE) {
-                        openSmithingTable(player)
-                    }
-
-                    Material.ENDER_CHEST       -> if (ENDER_CHEST) {
-                        openEnderChest(player)
-                    }
-
-                    else                       -> return
+                quickUse(item, clicker).ifc {
+                    clicker.updateInventory()
+                    event.isCancelled = true
                 }
-                event.isCancelled = true
             }
         }
     }
 
-    private fun openCraftingTable(player: Player) {
-        player.openWorkbench(player.location, true)
+    private fun quickUse(itemStack: ItemStack, player: Player): Boolean {
+        return when (val type = itemStack.type) {
+            Material.CRAFTING_TABLE    -> if (player.hasPermission("bakamc.quick_use.crafting_table")) {
+                openBlock(type, player)
+                true
+            } else false
+
+            Material.STONECUTTER       -> if (player.hasPermission("bakamc.quick_use.stonecutter")) {
+                openBlock(type, player)
+                true
+            } else false
+
+            Material.CARTOGRAPHY_TABLE -> if (player.hasPermission("bakamc.quick_use.cartography_table")) {
+                openBlock(type, player)
+                true
+            } else false
+
+            Material.GRINDSTONE        -> if (player.hasPermission("bakamc.quick_use.grindstone")) {
+                openBlock(type, player)
+                true
+            } else false
+
+            Material.LOOM              -> if (player.hasPermission("bakamc.quick_use.loom")) {
+                openBlock(type, player)
+                true
+            } else false
+
+            Material.SMITHING_TABLE    -> if (player.hasPermission("bakamc.quick_use.smithing_table")) {
+                openBlock(type, player)
+                true
+            } else false
+
+            Material.ENDER_CHEST       -> if (player.hasPermission("bakamc.quick_use.ender_chest")) {
+                openBlock(type, player)
+                true
+            } else false
+
+            else                       -> false
+        }
     }
 
-    private fun openStonecutter(player: Player) {
-        player.openStonecutter(player.location, true)
+    private fun openBlock(type: Material, player: Player) {
+        when (type) {
+            Material.CRAFTING_TABLE    -> {
+                player.openWorkbench(player.location, true)
+            }
+
+            Material.STONECUTTER       -> {
+                player.openStonecutter(player.location, true)
+            }
+
+            Material.CARTOGRAPHY_TABLE -> {
+                player.openCartographyTable(player.location, true)
+            }
+
+            Material.GRINDSTONE        -> {
+                player.openGrindstone(player.location, true)
+            }
+
+            Material.LOOM              -> {
+                player.openLoom(player.location, true)
+            }
+
+            Material.SMITHING_TABLE    -> {
+                player.openSmithingTable(player.location, true)
+            }
+
+            Material.ENDER_CHEST       -> {
+                player.openInventory(player.enderChest)
+            }
+
+            else                       -> Unit
+        }
     }
 
-    private fun openCartographyTable(player: Player) {
-        player.openCartographyTable(player.location, true)
-    }
-
-    private fun openGrindstone(player: Player) {
-        player.openGrindstone(player.location, true)
-    }
-
-    private fun openLoom(player: Player) {
-        player.openLoom(player.location, true)
-    }
-
-    private fun openSmithingTable(player: Player) {
-        player.openSmithingTable(player.location, true)
-    }
-
-    private fun openEnderChest(player: Player) {
-        player.openInventory(player.enderChest)
-    }
 
 }
 

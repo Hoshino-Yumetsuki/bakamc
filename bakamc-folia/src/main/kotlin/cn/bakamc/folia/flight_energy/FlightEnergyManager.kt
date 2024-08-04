@@ -312,20 +312,24 @@ object FlightEnergyManager : Listener, Initializable {
             player.energyBar?.setVisible(player.isFlying)
             player.isFlying
         }.forEach { player ->
-            //更新飞行能量
-            player.energy = (player.energy - (ENERGY_COST)).coerceAtLeast(0.0)
-            //更新飞行能量条状态
-            player.energyBar!!.tick()
-            //如果飞行能量耗尽
-            if (player.energy <= 0.0) {
-                //关闭飞行
-                toggleFly(player, false)
-                player.sendMessage(literalText("飞行能量已耗尽", Style(Colors.RED)))
-                //给予200tick的缓降效果
-                player.execute {
-                    player.addPotionEffect(PotionEffect(PotionEffectType.SLOW_FALLING, 200, 1, false, true))
-                }
+            runCatching {
+                //更新飞行能量
+                player.energy = (player.energy - (ENERGY_COST)).coerceAtLeast(0.0)
+                //更新飞行能量条状态
+                player.energyBar?.tick()
+                //如果飞行能量耗尽
+                if (player.energy <= 0.0) {
+                    //关闭飞行
+                    toggleFly(player, false)
+                    player.sendMessage(literalText("飞行能量已耗尽", Style(Colors.RED)))
+                    //给予200tick的缓降效果
+                    player.execute {
+                        player.addPotionEffect(PotionEffect(PotionEffectType.SLOW_FALLING, 200, 1, false, true))
+                    }
 
+                }
+            }.onFailure {
+                logger.warn("玩家[${player.name}]飞行能量更新失败",it)
             }
         }
     }

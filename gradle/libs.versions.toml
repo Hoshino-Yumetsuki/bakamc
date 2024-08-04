@@ -28,7 +28,7 @@ mysql = { group = "com.mysql", name = "mysql-connector-j", version.ref = "mysqlV
 ktormCore = { group = "org.ktorm", name = "ktorm-core", version.ref = "ktormVersion" }
 ktormMysql = { group = "org.ktorm", name = "ktorm-support-mysql", version.ref = "ktormVersion" }
 hikari = { group = "com.zaxxer", name = "HikariCP", version.ref = "hikariVersion" }
-miraiMCVelocity = { group = "io.github.dreamvoid", name = "MiraiMC-Velocity", version.ref = "miraiMCVersion" }
+miraiMC = { group = "io.github.dreamvoid", name = "MiraiMC-Integration", version.ref = "miraiMCVersion" }
 slf4j = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4jVersion" }
 
 [bundles]

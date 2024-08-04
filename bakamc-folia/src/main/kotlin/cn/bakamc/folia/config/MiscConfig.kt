@@ -4,8 +4,12 @@ import cn.bakamc.common.config.item.decorationMapping
 import cn.bakamc.common.text.bakatext.modifier.DecorationMapping
 import moe.forpleuvoir.nebula.config.container.ConfigContainerImpl
 import moe.forpleuvoir.nebula.config.item.impl.boolean
+import moe.forpleuvoir.nebula.config.item.impl.list
 import moe.forpleuvoir.nebula.config.item.impl.string
 import moe.forpleuvoir.nebula.config.item.impl.stringLongMap
+import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
+import moe.forpleuvoir.nebula.serialization.extensions.checkType
+import org.bukkit.event.inventory.InventoryType
 
 object MiscConfig : ConfigContainerImpl("misc") {
 
@@ -38,23 +42,17 @@ object MiscConfig : ConfigContainerImpl("misc") {
         )
     )
 
-    val backpackBlockEntityUse = addConfig(BackpackBlockEntityUse)
+    val quick_block_use = addConfig(QuickBlockUse)
 
-    object BackpackBlockEntityUse : ConfigContainerImpl("backpack_block_entity_use") {
+    object QuickBlockUse : ConfigContainerImpl("quick_block_use") {
 
-        val CRAFTING_TABLE by boolean("crafting_table", true)
-
-        val STONECUTTER by boolean("stonecutter", true)
-
-        val CARTOGRAPHY_TABLE by boolean("cartography_table", true)
-
-        val GRINDSTONE by boolean("grindstone", true)
-
-        val LOOM by boolean("loom", true)
-
-        val SMITHING_TABLE by boolean("smithing_table", true)
-
-        val ENDER_CHEST by boolean("ender_chest", true)
+        val INVENTORY_TYPE by list("inventory_type", InventoryType.entries, {
+            SerializePrimitive(it.name)
+        }, { serializeElement ->
+            serializeElement.checkType<SerializePrimitive, InventoryType> {
+                InventoryType.valueOf(it.asString)
+            }.getOrThrow()
+        })
 
     }
 

@@ -47,7 +47,7 @@ abstract class CommandNode {
                 if (throwable is NullPointerException) context.fail("未知指令:{} {}", context.commandLine, next)
                 else throw throwable
             }.onSuccess { node ->
-                node.onCommand(this.next(this@CommandNode))
+                node.onCommand(this.next(node))
             }
         }
     }

@@ -20,7 +20,7 @@ commands:
   bakamc:
     description: BakaMC插件指令
     usage: /bakamc
-    permission: bakamc.admin
+    permission: bakamc
   end:
     description: 打开末影箱
     usage: /end
@@ -30,6 +30,9 @@ permissions:
   bakamc.admin:
     description: 管理员
     default: op
+  bakamc:
+    description: bakamc
+    default: true
   bakamc.fly:
     description: 飞行
     default: true

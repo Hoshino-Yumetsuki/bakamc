@@ -13,6 +13,18 @@ repositories {
     mavenCentral()
 }
 
+tasks {
+
+    register<Copy>("pluginJar") {
+        subprojects.forEach {
+            it.tasks.findByName("pluginJar")?.let { task ->
+                dependsOn(task)
+            }
+        }
+    }
+
+}
+
 subprojects {
     apply(plugin = "cn.bakamc.refrigerator")
     apply(plugin = "kotlin")
@@ -37,7 +49,7 @@ subprojects {
     }
 
     kotlin {
-        compilerOptions{
+        compilerOptions {
             jvmTarget.set(JvmTarget.JVM_21)
             suppressWarnings = true
         }

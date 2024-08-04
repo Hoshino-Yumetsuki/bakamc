@@ -22,6 +22,7 @@ import kotlinx.coroutines.runBlocking
 import moe.forpleuvoir.nebula.common.color.Color
 import net.milkbowl.vault.economy.EconomyResponse.ResponseType.*
 import org.bukkit.entity.Player
+import kotlin.math.abs
 
 @Suppress("FunctionName")
 internal fun FlyCommand(): Command = Command("fly") {
@@ -91,6 +92,7 @@ internal fun FlyCommand(): Command = Command("fly") {
                                     player.updateEnergy(player.energy + energy)
                                 }.await().let {
                                     ctx.success("成功为玩家{}添加[{}]飞行能量", player, energy)
+                                    player.sendMessage("飞行能量更新,当前飞行能量[${player.energy}(+$energy)]")
                                 }
                             }
                         }
@@ -189,7 +191,7 @@ private val recharge: (CommandContext<out Player>) -> Unit = { ctx ->
     //玩家所持有的货币总量
     val totalMoney = player.money
     //需要充值的能量
-    val energy = ctx.getArg("energy")!!.toDouble()
+    val energy = abs(ctx.getArg("energy")!!.toDouble())
     //当次充值所消耗的货币量
     val cost = energy * ENERGY_PRICE
 
@@ -234,7 +236,7 @@ private val exchange: (CommandContext<out Player>) -> Unit = { ctx ->
 
     val key = ctx.getArg("money_item")!!
 
-    val count = ctx.getArg("count")?.toInt() ?: 1
+    val count = ctx.getArg("count")?.toInt()?.let { abs(it) } ?: 1
 
     var countTemp = count
 

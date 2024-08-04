@@ -3,6 +3,7 @@ package cn.bakamc.folia.flight_energy
 import cn.bakamc.folia.config.FlightEnergyConfig
 import cn.bakamc.folia.config.FlightEnergyConfig.MAX_ENERGY
 import cn.bakamc.folia.db.table.FlightEnergy
+import cn.bakamc.folia.util.logger
 import moe.forpleuvoir.nebula.common.util.clamp
 import org.bukkit.NamespacedKey
 import org.bukkit.Server
@@ -53,6 +54,10 @@ class EnergyBar private constructor(
 
     fun close() {
         bar.removeAll()
-        server.removeBossBar(key)
+        kotlin.runCatching {
+            server.removeBossBar(key)
+        }.onFailure {
+            logger.warn(key.toString(), it)
+        }
     }
 }

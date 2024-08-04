@@ -11,7 +11,7 @@ dependencies {
     compileOnly(libs.velocityApi)
     annotationProcessor(libs.velocityApi)
 
-    compileOnly(libs.miraiMCVelocity)
+    compileOnly(libs.miraiMC)
 
     bakaImplementation(libs.adventureExtraKotlin)
     bakaImplementation(project(":bakamc-common"))
@@ -39,6 +39,21 @@ tasks {
         velocityVersion(libs.versions.velocityVersion.get())
         downloadPlugins {
             github("DreamVoid", "MiraiMC", "v${libs.versions.miraiMCVersion.get()}", "MiraiMC-Velocity.jar")
+        }
+    }
+
+    register<Copy>("pluginJar") {
+        dependsOn(shadowJar)
+        mustRunAfter(shadowJar)
+        val outPath = "$rootDir/pluginJars/$version"
+        val name = shadowJar.get().archiveFileName.get()
+        val newName = "${project.name}-$version-velocity.${libs.versions.velocityVersion.get()}.jar"
+        from("build/libs")
+        into(outPath)
+        include(name)
+        doLast {
+            delete(file("$outPath/$newName"))
+            file("$outPath/$name").renameTo(file("$outPath/$newName"))
         }
     }
 
