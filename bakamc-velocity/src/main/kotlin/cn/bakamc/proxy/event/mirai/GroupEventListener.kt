@@ -30,8 +30,10 @@ object GroupEventListener {
 
     @Subscribe
     fun onMemberNameChange(event: MiraiMemberCardChangeEvent) {
-        if (!FORCE_UPDATE_MEMBER_CARD) return
-        if (event.oldNick == event.newNick) return
+        if (!FORCE_UPDATE_MEMBER_CARD
+            || event.member.permission < 0
+            || event.oldNick == event.newNick
+        ) return
         ioLaunch {
             val names = PlayerServices.getBindPlayers(event.memberID).map { it.name }
             names.reversed().let { playerNames ->

@@ -3,12 +3,16 @@ package cn.bakamc.folia.command
 import cn.bakamc.folia.BakaMCPlugin
 import cn.bakamc.folia.command.base.*
 import cn.bakamc.folia.util.launch
+import cn.bakamc.folia.util.literalText
+import cn.bakamc.folia.util.logger
+import moe.forpleuvoir.nebula.common.defaultLaunch
+import net.minecraft.network.chat.ClickEvent
 import org.bukkit.entity.Player
 
 @Suppress("FunctionName", "DuplicatedCode")
 fun MiscCommand(): Command = Command("bakamc") {
     literal("reload") {
-        permission { it.sender.hasPermission("bakamc.admin") }
+        permission("bakamc.admin")
         execute {
             launch {
                 BakaMCPlugin.instance.reload()
@@ -18,7 +22,7 @@ fun MiscCommand(): Command = Command("bakamc") {
     }
 
     literal("world") {
-        permission { it.sender.hasPermission("bakamc.admin") }
+        permission("bakamc.admin")
         execute<Player> {
             it.feedback(it.sender.world.name)
         }
@@ -37,7 +41,44 @@ fun MiscCommand(): Command = Command("bakamc") {
         }
     }
 
+    Chunkhot()
+
     QuickUseCommand()
 
 }
 
+fun CommandNode.Chunkhot(): CommandNode = "chunkhot" {
+    permission("bakamc.chunkhot")
+    execute { ctx ->
+//        Bukkit.getServer().name == "luminol"
+        defaultLaunch {
+            runCatching {
+                ctx.sender.server.worlds
+                    .flatMap { world -> world.loadedChunks.asIterable() }
+                    .sortedByDescending { chunk -> chunk.chunkHotAvg }
+                    .slice(0 until 10)
+                    .forEach { chunk ->
+                        val x = chunk.x * 16
+                        val z = chunk.z * 16
+                        ctx.feedback(
+                            literalText("[${chunk.world.name}]chunk hot: ${chunk.chunkHotAvg},")
+                                .append(
+                                    literalText("点击传送到此区块")
+                                        .withStyle {
+                                            it.withClickEvent(
+                                                ClickEvent(
+                                                    ClickEvent.Action.SUGGEST_COMMAND,
+                                                    "/execute in ${chunk.world.key.asString()} run tp $x ~ $z"
+                                                )
+                                            )
+                                        }
+                                )
+                        )
+                    }
+            }.onFailure {
+                logger.error("不支持的服务端,请使用luminol", it)
+                ctx.fail("不支持的服务端,请使用luminol")
+            }
+        }
+    }
+}

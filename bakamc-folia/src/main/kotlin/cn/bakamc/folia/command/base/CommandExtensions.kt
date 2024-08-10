@@ -32,6 +32,13 @@ fun CommandNode.permission(permission: (CommandContext<out CommandSender>) -> Bo
     return this
 }
 
+fun CommandNode.permission(permissionNode: String): CommandNode {
+    this.permission = {
+        it.sender.hasPermission(permissionNode)
+    }
+    return this
+}
+
 fun CommandNode.execute(executor: (CommandContext<out CommandSender>) -> Unit): CommandNode {
     this.executor = executor
     return this

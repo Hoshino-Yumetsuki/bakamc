@@ -17,7 +17,7 @@ dependencies {
     compileOnly(libs.vaultApi) { isTransitive = false }
     implementation(libs.adventureExtraKotlin)
 
-//    implementation("me.earthme.luminol:luminol-api:1.20.4-R0.1-SNAPSHOT")
+    compileOnly(fileTree("${projectDir.absolutePath}/libs"))
 
     //data base
     runtimeOnly(libs.mysql)
@@ -44,7 +44,6 @@ tasks {
         into(outPath)
         include(name)
         doLast {
-            delete(file("$outPath/$newName"))
             file("$outPath/$name").renameTo(file("$outPath/$newName"))
         }
     }
