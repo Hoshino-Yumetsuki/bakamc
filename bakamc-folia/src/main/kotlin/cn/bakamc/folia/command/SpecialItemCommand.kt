@@ -5,6 +5,7 @@ import cn.bakamc.folia.db.table.SpecialItem
 import cn.bakamc.folia.db.table.nameSpace
 import cn.bakamc.folia.db.table.toItemStack
 import cn.bakamc.folia.db.table.writeNbtTag
+import cn.bakamc.folia.extension.toServerPlayer
 import cn.bakamc.folia.item.SpecialItemManager
 import cn.bakamc.folia.util.getDisplayNameWithCount
 import cn.bakamc.folia.util.launch
@@ -28,6 +29,30 @@ internal fun SpecialItemCommand(): Command = Command("specialitem") {
             execute<Player>(give)
             argument("count") {
                 execute<Player>(give)
+                argument("player") {
+                    execute { ctx ->
+                        val player = ctx.getArg("player")!!.let { name ->
+                            ctx.sender.server.getPlayer(name)
+                        }?.toServerPlayer()
+                        if (player === null) {
+                            ctx.fail("找不到该玩家")
+                            return@execute
+                        }
+                        val key = ctx.getArg("key")!!
+                        val count = (ctx.getArg("count")?.toInt() ?: 1).coerceAtLeast(1)
+                        launch {
+                            val specialItem = SpecialItemManager.getCachedItem(key)
+                            if (specialItem == null) {
+                                ctx.fail("特殊物品[{}]不存在!", key)
+                            } else {
+                                specialItem.toItemStack(count)?.apply {
+                                    ctx.success("已给予玩家{}物品{}", player, this)
+                                    player.inventory.add(this)
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }

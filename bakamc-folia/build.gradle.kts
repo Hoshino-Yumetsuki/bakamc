@@ -40,6 +40,7 @@ tasks {
         val outPath = "$rootDir/pluginJars/$version"
         val name = reobfJar.get().outputJar.get().asFile.name
         val newName = "${project.name}-$version-minecraft.${libs.versions.minecraftVersion.get()}.jar"
+        delete(file("$outPath/$newName"))
         from("build/libs")
         into(outPath)
         include(name)
