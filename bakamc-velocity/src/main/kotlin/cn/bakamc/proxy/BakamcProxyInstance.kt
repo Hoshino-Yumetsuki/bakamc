@@ -9,7 +9,7 @@ import cn.bakamc.proxy.event.velocity.PlayerEventListener
 import cn.bakamc.proxy.messagechannel.MessageChannels
 import com.velocitypowered.api.proxy.ProxyServer
 import kotlinx.coroutines.runBlocking
-import moe.forpleuvoir.nebula.common.ioLaunch
+import moe.forpleuvoir.nebula.common.util.ioLaunch
 import org.slf4j.Logger
 import java.nio.file.Path
 import java.util.concurrent.TimeUnit

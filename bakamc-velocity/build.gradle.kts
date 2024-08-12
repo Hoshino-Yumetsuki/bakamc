@@ -13,7 +13,7 @@ dependencies {
 
     compileOnly(libs.miraiMC)
 
-    bakaImplementation(libs.adventureExtraKotlin)
+    bakaImplementation(libs.adventureExtraKotlin) { isTransitive = false }
     bakaImplementation(project(":bakamc-common"))
 
     bakaImplementation(libs.nebula) {

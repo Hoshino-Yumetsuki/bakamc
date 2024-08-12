@@ -1,7 +1,7 @@
 package cn.bakamc.folia.config.item
 
 import cn.bakamc.folia.event.entity.BlockInfo
-import moe.forpleuvoir.nebula.common.util.NotifiableLinkedHashMap
+import moe.forpleuvoir.nebula.common.util.collection.NotifiableLinkedHashMap
 import moe.forpleuvoir.nebula.config.ConfigBase
 import moe.forpleuvoir.nebula.config.item.ConfigMutableMapValue
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement

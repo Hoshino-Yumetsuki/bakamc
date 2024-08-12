@@ -1,7 +1,7 @@
 package cn.bakamc.common.config.item
 
-import moe.forpleuvoir.nebula.common.util.NotifiableArrayList
-import moe.forpleuvoir.nebula.common.util.NotifiableLinkedHashMap
+import moe.forpleuvoir.nebula.common.util.collection.NotifiableArrayList
+import moe.forpleuvoir.nebula.common.util.collection.NotifiableLinkedHashMap
 import moe.forpleuvoir.nebula.config.ConfigBase
 import moe.forpleuvoir.nebula.config.container.ConfigContainer
 import moe.forpleuvoir.nebula.config.item.ConfigMutableMapValue
@@ -49,8 +49,8 @@ class ConfigStringListMap(
 
     override fun deserialization(serializeElement: SerializeElement) {
         configValue = serializeElement.checkType {
-            check<SerializeObject> {
-                this@ConfigStringListMap.map(it.mapValues { (_, value) ->
+            check<SerializeObject> { obj ->
+                this@ConfigStringListMap.map(obj.mapValues { (_, value) ->
                     notifiableList(value.asArray.map { it.asString })
                 })
             }

@@ -6,7 +6,7 @@ import cn.bakamc.proxy.config.IpRestrictConfig.INTERCEPT_MESSAGE
 import cn.bakamc.proxy.config.IpRestrictConfig.WHITELIST
 import com.velocitypowered.api.proxy.Player
 import kotlinx.coroutines.delay
-import moe.forpleuvoir.nebula.common.defaultLaunch
+import moe.forpleuvoir.nebula.common.util.defaultLaunch
 import net.kyori.adventure.extra.kotlin.text
 import java.time.*
 import java.util.*
