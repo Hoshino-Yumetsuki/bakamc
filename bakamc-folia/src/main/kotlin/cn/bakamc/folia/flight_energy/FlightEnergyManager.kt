@@ -18,7 +18,6 @@ import cn.bakamc.folia.util.*
 import kotlinx.coroutines.runBlocking
 import moe.forpleuvoir.nebula.common.api.Initializable
 import moe.forpleuvoir.nebula.common.color.Colors
-import moe.forpleuvoir.nebula.common.util.clamp
 import net.minecraft.server.level.ServerPlayer
 import org.bukkit.GameMode
 import org.bukkit.entity.Player
@@ -203,7 +202,7 @@ object FlightEnergyManager : Listener, Initializable {
 
     fun addAllOnlinePlayerEnergy(energy: Double, range: ClosedRange<Double>): Int {
         energyCache.values.forEach {
-            it.energy = (it.energy + energy).clamp(range)
+            it.energy = (it.energy + energy).coerceIn(range)
         }
         if (syncing.get()) {
             runDelayed(1.seconds) {

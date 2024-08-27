@@ -8,7 +8,7 @@ import cn.bakamc.folia.service.PlayerService
 import cn.bakamc.folia.util.asNMS
 import cn.bakamc.folia.util.ioLaunch
 import cn.bakamc.folia.util.logger
-import moe.forpleuvoir.nebula.common.ifc
+import moe.forpleuvoir.nebula.common.util.primitive.ifc
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler

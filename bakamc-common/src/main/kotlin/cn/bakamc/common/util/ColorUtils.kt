@@ -3,7 +3,6 @@ package cn.bakamc.common.util
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.HSVColor
-import moe.forpleuvoir.nebula.common.util.clamp
 
 fun HSVColor.gradient(to: HSVColor, steps: Int): List<HSVColor> {
     return gradientHSVColor(this, to, steps)
@@ -23,7 +22,7 @@ fun gradientHSVColor(from: HSVColor, to: HSVColor,steps: Int): List<HSVColor> {
 
     return buildList {
         repeat(steps) { index ->
-            add(from.lerp(to, (index * (1f / (steps - 1))).clamp(0f, 1f)))
+            add(from.lerp(to, (index * (1f / (steps - 1))).coerceIn(0f, 1f)))
         }
     }
 }
@@ -34,7 +33,7 @@ fun gradientColor(from: ARGBColor, to: ARGBColor, steps: Int): List<ARGBColor> {
     if (steps == 1) return listOf(Color(from.red, from.green, from.blue, from.alpha, false))
     return buildList {
         repeat(steps) { index ->
-            add(from.lerp(to, (index * (1f / (steps - 1))).clamp(0f, 1f)))
+            add(from.lerp(to, (index * (1f / (steps - 1))).coerceIn(0f, 1f)))
         }
     }
 }

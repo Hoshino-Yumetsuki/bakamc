@@ -1,6 +1,6 @@
 package cn.bakamc.common.text.bakatext.modifier
 
-import moe.forpleuvoir.nebula.common.pick
+import moe.forpleuvoir.nebula.common.util.primitive.pick
 import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.format.TextDecoration.*
 

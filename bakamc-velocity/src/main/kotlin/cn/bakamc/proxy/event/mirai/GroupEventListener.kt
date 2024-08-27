@@ -23,7 +23,7 @@ import com.velocitypowered.api.event.Subscribe
 import me.dreamvoid.miraimc.velocity.event.group.member.MiraiMemberCardChangeEvent
 import me.dreamvoid.miraimc.velocity.event.group.member.MiraiMemberLeaveEvent
 import me.dreamvoid.miraimc.velocity.event.message.passive.MiraiGroupMessageEvent
-import moe.forpleuvoir.nebula.common.ioLaunch
+import moe.forpleuvoir.nebula.common.util.ioLaunch
 
 
 object GroupEventListener {

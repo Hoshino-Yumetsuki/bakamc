@@ -5,7 +5,7 @@ import cn.bakamc.folia.command.base.*
 import cn.bakamc.folia.util.launch
 import cn.bakamc.folia.util.literalText
 import cn.bakamc.folia.util.logger
-import moe.forpleuvoir.nebula.common.defaultLaunch
+import moe.forpleuvoir.nebula.common.util.defaultLaunch
 import net.minecraft.network.chat.ClickEvent
 import org.bukkit.entity.Player
 

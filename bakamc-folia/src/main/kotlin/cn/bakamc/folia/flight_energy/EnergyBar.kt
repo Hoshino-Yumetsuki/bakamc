@@ -4,7 +4,6 @@ import cn.bakamc.folia.config.FlightEnergyConfig
 import cn.bakamc.folia.config.FlightEnergyConfig.MAX_ENERGY
 import cn.bakamc.folia.db.table.FlightEnergy
 import cn.bakamc.folia.util.logger
-import moe.forpleuvoir.nebula.common.util.clamp
 import org.bukkit.NamespacedKey
 import org.bukkit.Server
 import org.bukkit.boss.KeyedBossBar
@@ -42,7 +41,7 @@ class EnergyBar private constructor(
         lastEnergy = flightEnergy.energy
     }
 
-    private val progress get() = (flightEnergy.energy / MAX_ENERGY).clamp(0.0, 1.0)
+    private val progress get() = (flightEnergy.energy / MAX_ENERGY).coerceIn(0.0, 1.0)
 
     private fun title(): String {
         return FlightEnergyConfig.EnergyBar.TITLE.format(flightEnergy.energy, flightEnergy.energy - lastEnergy, MAX_ENERGY)
