@@ -84,7 +84,7 @@ object GroupEventListener {
     }
 
     private fun updateCard(event: MiraiGroupMessageEvent) {
-        if (event.senderPermission == 0 || event.groupID != VERIFY_GROUP) return
+        if (event.senderPermission == 0 || event.groupID !in VERIFY_GROUP) return
         val message = event.message
         val id = message.substring("updateCard".length + 1)
         runCatching {
@@ -124,7 +124,7 @@ object GroupEventListener {
     }
 
     private fun onBind(event: MiraiGroupMessageEvent) {
-        if (event.groupID != VERIFY_GROUP) return
+        if (event.groupID !in VERIFY_GROUP) return
         val message = event.message
         logger.info("绑定指令$message")
         val code = message.substring(BIND_COMMAND.length + 1)
@@ -152,7 +152,7 @@ object GroupEventListener {
 
     @Subscribe
     fun onQuitGroup(event: MiraiMemberLeaveEvent.Quit) {
-        if (event.groupID == VERIFY_GROUP && event.botID in BOTS) {
+        if (event.groupID in VERIFY_GROUP && event.botID in BOTS) {
             val id = event.targetID
             ioLaunch {
                 WhiteListManager.onMemberQuit(id)
@@ -163,7 +163,7 @@ object GroupEventListener {
 
     @Subscribe
     fun onQuitGroup(event: MiraiMemberLeaveEvent.Kick) {
-        if (event.groupID == VERIFY_GROUP && event.botID in BOTS) {
+        if (event.groupID in VERIFY_GROUP && event.botID in BOTS) {
             val id = event.targetID
             ioLaunch {
                 WhiteListManager.onMemberQuit(id)

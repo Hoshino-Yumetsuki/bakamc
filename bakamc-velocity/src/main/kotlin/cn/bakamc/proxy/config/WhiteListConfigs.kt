@@ -20,7 +20,7 @@ object WhiteListConfigs : ConfigContainerImpl("white_list") {
 
     val VERIFY_CODE_LENGTH by int("verify_code_length", 6)
 
-    val VERIFY_GROUP by long("verify_group", 12345678)
+    val VERIFY_GROUP by longList("verify_group", listOf(12345678))
 
     val VERIFY_CODE_EXPIRATION_TIME by duration("verify_code_expiration_time", 10.minutes)
 
