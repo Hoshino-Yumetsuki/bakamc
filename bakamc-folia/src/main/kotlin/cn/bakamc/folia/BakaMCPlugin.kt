@@ -35,6 +35,7 @@ class BakaMCPlugin : JavaPlugin(), Bakamc {
 
     override val bakaName: String
         get() = BuildConstants.NAME
+
     override val bakaVersion: String
         get() = BuildConstants.VERSION
 

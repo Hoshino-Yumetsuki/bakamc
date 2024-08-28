@@ -13,7 +13,7 @@ dependencies {
     implementation(project(":bakamc-common"))
 
 //    paperweight.foliaDevBundle("${libs.versions.minecraftVersion.get()}-R0.1-SNAPSHOT")
-    paperweight.devBundle(group = "me.earthme.luminol", artifactId = "dev-bundle", version = "1.20.4-R0.1-20240812.121803-1")
+    paperweight.devBundle(group = "me.earthme.luminol", artifactId = "dev-bundle", version = "1.21.1-R0.1-20240825.043711-6")
 
     compileOnly(libs.vaultApi) { isTransitive = false }
     implementation(libs.adventureExtraKotlin)
@@ -30,7 +30,7 @@ val props = mapOf(
     "name" to project.name,
     "version" to project.version,
     "description" to project.description,
-    "apiVersion" to "1.20"
+    "apiVersion" to "1.21"
 )
 
 tasks {

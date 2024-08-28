@@ -14,7 +14,7 @@ import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
 import moe.forpleuvoir.nebula.serialization.extensions.serializeArray
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import net.minecraft.nbt.*
-import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack
+import org.bukkit.craftbukkit.inventory.CraftItemStack
 import org.bukkit.entity.Entity
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.Plugin
@@ -118,49 +118,6 @@ fun <T : Comparable<T>> deserialization(serializeElement: SerializeElement, supp
     }
 }
 
-fun CompoundTag.toSerializerObjet(): SerializeObject {
-    return serializeObject {
-        tags.forEach { (k, v) ->
-            k - v.toSerializerElement()
-        }
-    }
-}
-
-fun Tag.toSerializerElement(): SerializeElement {
-    return when (this) {
-        is ShortTag               -> SerializePrimitive(this.asShort)
-        is DoubleTag              -> SerializePrimitive(this.asDouble)
-        is FloatTag               -> SerializePrimitive(this.asFloat)
-        is ByteTag                -> SerializePrimitive(this.asByte)
-        is IntTag                 -> SerializePrimitive(this.asInt)
-        is LongTag                -> SerializePrimitive(this.asLong)
-        is StringTag              -> SerializePrimitive(this.asString)
-        is NumericTag             -> SerializePrimitive(this.asNumber)
-        is LongArrayTag           -> serializeArray { this@toSerializerElement.forEach { SerializePrimitive(it.asLong) } }
-        is ByteArrayTag           -> serializeArray { this@toSerializerElement.forEach { SerializePrimitive(it.asByte) } }
-        is IntArrayTag            -> serializeArray { this@toSerializerElement.forEach { SerializePrimitive(it.asInt) } }
-        is ListTag                -> serializeArray { this@toSerializerElement.forEach { it.toSerializerElement() } }
-        is CollectionTag<out Tag> -> serializeArray { this@toSerializerElement.forEach { it.toSerializerElement() } }
-        is CompoundTag            -> toSerializerObjet()
-        else                      -> SerializeNull
-    }
-}
-
 val ItemStack.asNMS
     get() = CraftItemStack.asNMSCopy(this)
 
-fun ItemStack.hasTag(tagName: String): Boolean {
-    val itemStack = this.asNMS
-    itemStack.tag?.let { tag ->
-        return tag.contains(tagName)
-    }
-    return false
-}
-
-fun ItemStack.getTagAsString(tagName: String): String {
-    val itemStack = this.asNMS
-    itemStack.tag?.let { tag ->
-        return tag.getString(tagName)
-    }
-    return ""
-}

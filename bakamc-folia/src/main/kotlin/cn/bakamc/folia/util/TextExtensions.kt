@@ -6,6 +6,7 @@ import moe.forpleuvoir.nebula.common.color.RGBColor
 import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer
 import net.minecraft.ChatFormatting
+import net.minecraft.core.component.DataComponents
 import net.minecraft.network.chat.*
 import net.minecraft.network.chat.HoverEvent.ItemStackInfo
 import net.minecraft.resources.ResourceLocation
@@ -13,7 +14,8 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
 import org.bukkit.block.Block
 import org.bukkit.command.CommandSender
-import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack
+import org.bukkit.craftbukkit.CraftRegistry
+import org.bukkit.craftbukkit.inventory.CraftItemStack
 import org.bukkit.entity.Player
 
 fun literalText(content: String = ""): MutableComponent {
@@ -46,28 +48,32 @@ fun formatText(text: String, vararg params: Any): MutableComponent {
 }
 
 fun CommandSender.sendMessage(message: Component) {
-    sendMessage(JSONComponentSerializer.json().deserialize(Component.Serializer.toJson(message)))
+    sendMessage(JSONComponentSerializer.json().deserialize(Component.Serializer.toJson(message, CraftRegistry.getMinecraftRegistry())))
 }
 
 private fun Any.toText(): Component {
     return when (this) {
-        is Component                             -> this
+        is Component -> this
 
-        is String                                -> literalText(this)
+        is String -> literalText(this)
 
-        is Block                                 -> wrapInSquareBrackets(literalText(this.blockData.material.name))
+        is Block -> wrapInSquareBrackets(literalText(this.blockData.material.name))
 
         is net.minecraft.world.level.block.Block -> wrapInSquareBrackets(this.name)
 
-        is org.bukkit.inventory.ItemStack        -> CraftItemStack.asNMSCopy(this).getDisplayNameWithCount()
+        is org.bukkit.inventory.ItemStack -> CraftItemStack.asNMSCopy(this).getDisplayNameWithCount()
 
-        is ItemStack                             -> this.getDisplayNameWithCount()
+        is ItemStack -> this.getDisplayNameWithCount()
 
-        is Player                                -> wrapInSquareBrackets(literalText((this.displayName() as TextComponent).content())) { it.applyFormat(ChatFormatting.AQUA) }
+        is Player -> wrapInSquareBrackets(literalText((this.displayName() as TextComponent).content())) {
+            it.applyFormat(
+                ChatFormatting.AQUA
+            )
+        }
 
-        is ServerPlayer                          -> wrapInSquareBrackets(literalText(this.displayName)) { it.applyFormat(ChatFormatting.AQUA) }
+        is ServerPlayer -> wrapInSquareBrackets(literalText(this.displayName)) { it.applyFormat(ChatFormatting.AQUA) }
 
-        else                                     -> literalText(this.toString())
+        else -> literalText(this.toString())
     }
 }
 
@@ -85,14 +91,14 @@ fun wrapInSquareBrackets(text: MutableComponent, style: (Style) -> Style): Mutab
 
 fun ItemStack.getDisplayNameWithCount(): MutableComponent {
     val mutableText: MutableComponent = Component.empty()
-            .append(this.getHoverName())
-            .append(if (count > 1) " x${this.count}" else "")
-    if (this.hasCustomHoverName()) {
+        .append(this.getHoverName())
+        .append(if (count > 1) " x${this.count}" else "")
+    if (this.has(DataComponents.CUSTOM_NAME)) {
         mutableText.withStyle(ChatFormatting.ITALIC)
     }
     val mutableText1 = wrapInSquareBrackets(mutableText)
     if (!this.isEmpty) {
-        mutableText1.withStyle(this.rarity.color).withStyle { style ->
+        mutableText1.withStyle(this.rarity.color()).withStyle { style ->
             style.withHoverEvent(
                 HoverEvent(HoverEvent.Action.SHOW_ITEM, ItemStackInfo(this))
             )

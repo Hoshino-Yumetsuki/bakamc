@@ -9,6 +9,7 @@ import cn.bakamc.folia.util.asNMS
 import cn.bakamc.folia.util.ioLaunch
 import cn.bakamc.folia.util.logger
 import moe.forpleuvoir.nebula.common.util.primitive.ifc
+import net.minecraft.core.component.DataComponents
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -75,7 +76,7 @@ object PlayerEventListener : Listener {
     private const val BAKAMC_INTERACT_TAG_NAME = "bakamc_interact"
 
     private val ItemStack.bakaInteractTag
-        get() = asNMS.tag?.getString(BAKAMC_INTERACT_TAG_NAME)
+        get() = asNMS.components.get(DataComponents.)?.getString(BAKAMC_INTERACT_TAG_NAME)
 
     @EventHandler
     fun onPlayerInteractEvent(event: PlayerInteractEvent) {
