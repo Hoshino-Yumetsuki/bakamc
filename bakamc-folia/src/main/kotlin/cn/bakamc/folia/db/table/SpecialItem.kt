@@ -1,11 +1,13 @@
 package cn.bakamc.folia.db.table
 
 import cn.bakamc.folia.util.logger
+import com.mojang.serialization.JsonOps
+import moe.forpleuvoir.nebula.serialization.gson.parseToJsonElement
+import moe.forpleuvoir.nebula.serialization.gson.toJsonStr
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.NbtAccounter
 import net.minecraft.nbt.NbtIo
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
 import org.ktorm.database.Database
 import org.ktorm.entity.Entity
@@ -44,7 +46,9 @@ fun ItemStack.toSpecialItem(key: String): SpecialItem {
     return SpecialItem {
         this.key = key
         this.id = nameSpace
-        this.nbtTag = tag?.let { writeNbtTag(it) } ?: ByteArray(0)
+        val result = ItemStack.SINGLE_ITEM_CODEC.encodeStart(JsonOps.COMPRESSED, this@toSpecialItem).result()
+        this.nbtTag = ByteArray(0)
+        result.ifPresent { this.nbtTag = it.toJsonStr().toByteArray(Charsets.UTF_8) }
     }
 }
 
@@ -55,19 +59,19 @@ val ItemStack.nameSpace: String get() = BuiltInRegistries.ITEM.getKey(this.item)
 
 fun readNbtTag(tagData: ByteArray): CompoundTag? {
     return if (tagData.isEmpty()) null
-    else NbtIo.readCompressed(ByteArrayInputStream(tagData),NbtAccounter.unlimitedHeap())
+    else NbtIo.readCompressed(ByteArrayInputStream(tagData), NbtAccounter.unlimitedHeap())
 }
 
 fun writeNbtTag(tag: CompoundTag?): ByteArray? {
-    return if (tag == null) null
+    return if (tag === null) null
     else ByteArrayOutputStream(tag.sizeInBytes()).apply { NbtIo.writeCompressed(tag, this) }.toByteArray()
 }
 
 fun SpecialItem.toItemStack(count: Int): ItemStack? {
     runCatching {
-        val item = BuiltInRegistries.ITEM.get(ResourceLocation(id))
-        return ItemStack(item).apply {
-            tag = readNbtTag(nbtTag)
+        println(nbtTag.toString(Charsets.UTF_8))
+        val item = ItemStack.SINGLE_ITEM_CODEC.decode(JsonOps.COMPRESSED, nbtTag.toString(Charsets.UTF_8).parseToJsonElement).result().get().first
+        return item.apply {
             this.count = count
         }
     }.onFailure {
@@ -79,8 +83,9 @@ fun SpecialItem.toItemStack(count: Int): ItemStack? {
 
 fun SpecialItem.isMatch(item: ItemStack): Boolean {
     runCatching {
-        val idEquals = item.nameSpace == id
-        return idEquals && readNbtTag(nbtTag) == item.tag
+        val a = ItemStack.SINGLE_ITEM_CODEC.encodeStart(JsonOps.COMPRESSED, item).result().get().toJsonStr()
+        val b = ItemStack.SINGLE_ITEM_CODEC.decode(JsonOps.COMPRESSED, nbtTag.toString(Charsets.UTF_8).parseToJsonElement).result().get().second.toJsonStr()
+        return a == b
     }.onFailure {
         logger.info("物品匹配异常")
         it.printStackTrace()

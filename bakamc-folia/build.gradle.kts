@@ -41,11 +41,11 @@ tasks {
         val outPath = "$rootDir/pluginJars/$version"
         val name = reobfJar.get().outputJar.get().asFile.name
         val newName = "${project.name}-$version-minecraft.${libs.versions.minecraftVersion.get()}.jar"
-        delete(file("$outPath/$newName"))
         from("build/libs")
         into(outPath)
         include(name)
         doLast {
+            delete(file("$outPath/$newName"))
             file("$outPath/$name").renameTo(file("$outPath/$newName"))
         }
     }
@@ -54,9 +54,9 @@ tasks {
         minecraftVersion(libs.versions.minecraftVersion.get())
     }
 
-    runPaper {
-        folia.registerTask()
-    }
+//    runPaper {
+//        folia.registerTask()
+//    }
 
     assemble {
         dependsOn(reobfJar)

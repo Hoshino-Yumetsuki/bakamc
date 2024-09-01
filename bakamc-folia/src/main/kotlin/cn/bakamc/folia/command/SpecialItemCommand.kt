@@ -1,10 +1,8 @@
 package cn.bakamc.folia.command
 
 import cn.bakamc.folia.command.base.*
-import cn.bakamc.folia.db.table.SpecialItem
-import cn.bakamc.folia.db.table.nameSpace
 import cn.bakamc.folia.db.table.toItemStack
-import cn.bakamc.folia.db.table.writeNbtTag
+import cn.bakamc.folia.db.table.toSpecialItem
 import cn.bakamc.folia.extension.toServerPlayer
 import cn.bakamc.folia.item.SpecialItemManager
 import cn.bakamc.folia.util.getDisplayNameWithCount
@@ -92,11 +90,7 @@ internal val put: (CommandContext<out Player>) -> Unit = { ctx ->
         if (!this.isEmpty) {
             val key = ctx.getArg("key") ?: this.hoverName.string
             launch {
-                SpecialItemManager.put(SpecialItem {
-                    this.key = key
-                    this.id = this@apply.nameSpace
-                    this.nbtTag = writeNbtTag(this@apply.tag) ?: ByteArray(0)
-                }).let {
+                SpecialItemManager.put(this@apply.toSpecialItem(key)).let {
                     if (it) {
                         ctx.success("已添加或修改特殊物品[{}]为{}", key, this@apply)
                     } else {

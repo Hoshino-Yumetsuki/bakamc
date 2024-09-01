@@ -76,7 +76,7 @@ object PlayerEventListener : Listener {
     private const val BAKAMC_INTERACT_TAG_NAME = "bakamc_interact"
 
     private val ItemStack.bakaInteractTag
-        get() = asNMS.components.get(DataComponents.)?.getString(BAKAMC_INTERACT_TAG_NAME)
+        get() = this.asNMS.components.get(DataComponents.CUSTOM_DATA)?.copyTag()?.get(BAKAMC_INTERACT_TAG_NAME)?.asString
 
     @EventHandler
     fun onPlayerInteractEvent(event: PlayerInteractEvent) {

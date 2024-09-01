@@ -48,11 +48,11 @@ tasks {
         val outPath = "$rootDir/pluginJars/$version"
         val name = shadowJar.get().archiveFileName.get()
         val newName = "${project.name}-$version-velocity.${libs.versions.velocityVersion.get()}.jar"
-        delete(file("$outPath/$newName"))
         from("build/libs")
         into(outPath)
         include(name)
         doLast {
+            delete(file("$outPath/$newName"))
             file("$outPath/$name").renameTo(file("$outPath/$newName"))
         }
     }

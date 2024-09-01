@@ -1,4 +1,4 @@
-import moe.forpleuvoir.nebula.common.defaultLaunch
+import moe.forpleuvoir.nebula.common.util.defaultLaunch
 import kotlin.test.Test
 
 class Test {
