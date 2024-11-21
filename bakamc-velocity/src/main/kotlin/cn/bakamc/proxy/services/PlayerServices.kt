@@ -37,6 +37,12 @@ object PlayerServices {
         }
     }
 
+    suspend fun unBindQQ(playerUUID: UUID): Boolean {
+        return database {
+            playerInfos.removeIf { it.uuid eq playerUUID.toString() }
+        } > 0
+    }
+
     suspend fun getBindQQ(playerUUID: UUID): Long? {
         return database {
             playerInfos.find { it.uuid eq playerUUID.toString() }?.qq?.let { if (it == 0L) null else it }

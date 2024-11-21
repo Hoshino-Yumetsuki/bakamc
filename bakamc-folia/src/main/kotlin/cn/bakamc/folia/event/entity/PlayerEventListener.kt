@@ -1,5 +1,6 @@
 package cn.bakamc.folia.event.entity
 
+import cn.bakamc.common.text.bakatext.BakaText
 import cn.bakamc.folia.config.MiscConfig
 import cn.bakamc.folia.config.MiscConfig.ENABLE_PLAYER_INTERACT_MODIFY
 import cn.bakamc.folia.config.MiscConfig.quick_block_use
@@ -9,6 +10,7 @@ import cn.bakamc.folia.util.asNMS
 import cn.bakamc.folia.util.ioLaunch
 import cn.bakamc.folia.util.logger
 import moe.forpleuvoir.nebula.common.util.primitive.ifc
+import net.kyori.adventure.text.Component
 import net.minecraft.core.component.DataComponents
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -16,6 +18,7 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.*
@@ -208,6 +211,17 @@ object PlayerEventListener : Listener {
         }
     }
 
-
+    @EventHandler
+    fun onPlayerDeath(event: PlayerDeathEvent) {
+        if (MiscConfig.player_death_message.ENABLE_DEATH_MESSAGE_OVERRIDE) {
+            val prefix = BakaText.parse(MiscConfig.player_death_message.DEATH_MESSAGE_PREFIX)
+            val suffix = BakaText.parse(MiscConfig.player_death_message.DEATH_MESSAGE_SUFFIX)
+            prefix.append(event.deathMessage() ?: Component.empty())
+                .append(suffix)
+                .let {
+                    event.deathMessage(it)
+                }
+        }
+    }
 }
 

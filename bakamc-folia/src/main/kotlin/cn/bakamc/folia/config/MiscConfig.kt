@@ -56,5 +56,17 @@ object MiscConfig : ConfigContainerImpl("misc") {
 
     }
 
+    val player_death_message = addConfig(PlayerDeathMessage)
+
+    object PlayerDeathMessage : ConfigContainerImpl("player_death_message") {
+
+        val ENABLE_DEATH_MESSAGE_OVERRIDE by boolean("enable_death_message_override", false)
+
+        val DEATH_MESSAGE_PREFIX by string("death_message_prefix", "")
+
+        val DEATH_MESSAGE_SUFFIX by string("death_message_suffix", "")
+
+    }
+
 
 }

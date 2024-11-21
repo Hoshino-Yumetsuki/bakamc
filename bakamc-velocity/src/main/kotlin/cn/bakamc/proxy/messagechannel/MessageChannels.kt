@@ -32,7 +32,6 @@ object MessageChannels {
         }
 
     fun onMessage(identifier: ChannelIdentifier, source: ChannelMessageSource, message: ByteArray) {
-
         channels.find { it.channel.id == identifier.id }?.messageHandler?.invoke(source, MessageData.fromBytes(message))
     }
 

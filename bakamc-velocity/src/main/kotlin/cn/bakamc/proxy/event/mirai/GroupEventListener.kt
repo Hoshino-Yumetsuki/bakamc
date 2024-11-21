@@ -24,6 +24,7 @@ import me.dreamvoid.miraimc.velocity.event.group.member.MiraiMemberCardChangeEve
 import me.dreamvoid.miraimc.velocity.event.group.member.MiraiMemberLeaveEvent
 import me.dreamvoid.miraimc.velocity.event.message.passive.MiraiGroupMessageEvent
 import moe.forpleuvoir.nebula.common.util.ioLaunch
+import java.util.*
 
 
 object GroupEventListener {
@@ -31,7 +32,7 @@ object GroupEventListener {
     @Subscribe
     fun onMemberNameChange(event: MiraiMemberCardChangeEvent) {
         if (!FORCE_UPDATE_MEMBER_CARD
-            || event.member.permission < 0
+            || event.member.permission > 0
             || event.oldNick == event.newNick
         ) return
         ioLaunch {
@@ -55,6 +56,7 @@ object GroupEventListener {
             val message = event.message
             when {
                 message.startsWith(BIND_COMMAND)     -> onBind(event)
+                message.startsWith("unBind")         -> unBind(event)
                 message.startsWith("updateCard")     -> updateCard(event)
                 message.matches(consoleCommandRegex) -> consoleCommand(event)
             }
@@ -121,6 +123,15 @@ object GroupEventListener {
         }
         nameCard = nameCard.replace(Regex("""#\{bind\[((\d+)|last)]}"""), "")
         return if (playerNames.isNotEmpty()) nameCard else ""
+    }
+
+    private fun unBind(event: MiraiGroupMessageEvent) {
+        if (event.groupID !in VERIFY_GROUP || event.senderPermission < 1) return
+        val uuid = UUID.fromString(event.message.substring(BIND_COMMAND.length))
+        ioLaunch {
+            event.reply(WhiteListManager.unBind(uuid))
+            logger.info("将玩家[$uuid]移除白名单,操作者${event.senderID}")
+        }
     }
 
     private fun onBind(event: MiraiGroupMessageEvent) {

@@ -85,6 +85,16 @@ object WhiteListManager {
         return "不存在的验证码" to null
     }
 
+    suspend fun unBind(uuid: UUID): String {
+        val qq = PlayerServices.getBindQQ(uuid)
+        return if (PlayerServices.unBindQQ(uuid)) {
+            BakamcProxyInstance.server.getPlayer(uuid).ifPresent { player -> player.disconnect(Component.text("你已不在白名单中")) }
+            "已移除 $qq 与 [$uuid] 的白名单绑定"
+        } else {
+            "未找到该UUID的白名单绑定"
+        }
+    }
+
     private fun generateVerifyCode(player: Player): String {
         return generate(VERIFY_CODE_LENGTH).apply {
             var removedKey: String? = null
