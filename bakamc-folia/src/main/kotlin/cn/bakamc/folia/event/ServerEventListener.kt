@@ -1,7 +1,7 @@
-package cn.bakamc.folia.event.entity
+package cn.bakamc.folia.event
 
 import cn.bakamc.folia.BakaMCPlugin
-import cn.bakamc.folia.config.MiscConfig.SERVER_START_COMMAND
+import cn.bakamc.folia.config.MiscConfig
 import cn.bakamc.folia.util.server
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -12,8 +12,8 @@ object ServerEventListener : Listener {
     @EventHandler
     fun onServerLoad(event: ServerLoadEvent) {
         if (event.type == ServerLoadEvent.LoadType.STARTUP) {
-            SERVER_START_COMMAND.forEach { (cmd, delay) ->
-                server.globalRegionScheduler.runDelayed(BakaMCPlugin.instance, {
+            MiscConfig.SERVER_START_COMMAND.forEach { (cmd, delay) ->
+                server.globalRegionScheduler.runDelayed(BakaMCPlugin.Companion.instance, {
                     server.dispatchCommand(server.consoleSender, cmd)
                 }, delay)
             }

@@ -2,7 +2,7 @@ package cn.bakamc.folia.config
 
 import cn.bakamc.common.config.item.stringListMap
 import cn.bakamc.folia.config.item.entityInfos
-import cn.bakamc.folia.event.entity.EntityInfo
+import cn.bakamc.folia.event.pojo.EntityInfo
 import moe.forpleuvoir.nebula.config.container.ConfigContainerImpl
 
 object EntityConfig : ConfigContainerImpl("entity") {
@@ -11,7 +11,9 @@ object EntityConfig : ConfigContainerImpl("entity") {
         "entity_infos",
         mapOf(
             "小黑" to EntityInfo(type = "minecraft:enderman"),
-            "苦力怕" to EntityInfo(type = "minecraft:creeper")
+            "苦力怕" to EntityInfo(type = "minecraft:creeper"),
+            "僵尸" to EntityInfo(type = "minecraft:zombie"),
+            "尸壳" to EntityInfo(type = "minecraft:husk")
         )
     )
 
@@ -26,6 +28,14 @@ object EntityConfig : ConfigContainerImpl("entity") {
         "explode_block_map",
         mapOf(
             "苦力怕" to listOf("西瓜")
+        )
+    )
+
+    val PICKUP_ITEM_MAP by stringListMap(
+        "pickup_item_map",
+        mapOf(
+            "僵尸" to listOf("鸡蛋"),
+            "尸壳!" to listOf("鸡蛋")
         )
     )
 

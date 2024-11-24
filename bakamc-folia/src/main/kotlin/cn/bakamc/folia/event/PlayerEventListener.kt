@@ -1,4 +1,4 @@
-package cn.bakamc.folia.event.entity
+package cn.bakamc.folia.event
 
 import cn.bakamc.common.text.bakatext.BakaText
 import cn.bakamc.folia.config.MiscConfig

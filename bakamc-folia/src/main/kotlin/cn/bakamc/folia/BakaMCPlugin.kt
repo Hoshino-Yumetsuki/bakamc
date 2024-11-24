@@ -4,7 +4,7 @@ import cn.bakamc.common.Bakamc
 import cn.bakamc.folia.command.registerCommand
 import cn.bakamc.folia.config.Configs
 import cn.bakamc.folia.db.initDataBase
-import cn.bakamc.folia.event.entity.EntityChangedBlockEventListener
+import cn.bakamc.folia.event.onReload
 import cn.bakamc.folia.event.registerEvent
 import cn.bakamc.folia.flight_energy.FlightEnergyManager
 import cn.bakamc.folia.item.SpecialItemManager
@@ -51,8 +51,7 @@ class BakaMCPlugin : JavaPlugin(), Bakamc {
         }
 
         Configs.onLoaded {
-            EntityChangedBlockEventListener.reloadCache()
-
+            onReload()
             initDataBase()
 
             SpecialItemManager.init()

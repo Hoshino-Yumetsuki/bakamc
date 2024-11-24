@@ -5,7 +5,6 @@ import cn.bakamc.common.config.component.backup
 import cn.bakamc.common.config.component.generateTemp
 import cn.bakamc.common.config.item.serverInfo
 import cn.bakamc.folia.BakaMCPlugin
-import cn.bakamc.folia.config.item.BlockConfig
 import cn.bakamc.folia.util.logger
 import moe.forpleuvoir.nebula.config.manager.ConfigManagerImpl
 import moe.forpleuvoir.nebula.config.manager.component.localConfig
@@ -50,6 +49,8 @@ object Configs : ConfigManagerImpl(BakaMCPlugin.instance.bakaName) {
     val FLIGHT_ENERGY_CONFIG = addConfig(FlightEnergyConfig)
 
     val BLOCK_CONFIG = addConfig(BlockConfig)
+
+    val ITEM_ENTITY_CONFIG = addConfig(ItemEntityConfig)
 
     val ENTITY_CONFIG = addConfig(EntityConfig)
 

@@ -1,6 +1,6 @@
 package cn.bakamc.folia.config.item
 
-import cn.bakamc.folia.event.entity.EntityInfo
+import cn.bakamc.folia.event.pojo.EntityInfo
 import moe.forpleuvoir.nebula.common.util.collection.NotifiableLinkedHashMap
 import moe.forpleuvoir.nebula.config.ConfigBase
 import moe.forpleuvoir.nebula.config.container.ConfigContainer

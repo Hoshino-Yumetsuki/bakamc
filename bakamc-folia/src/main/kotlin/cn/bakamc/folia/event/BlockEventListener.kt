@@ -1,4 +1,4 @@
-package cn.bakamc.folia.event.entity
+package cn.bakamc.folia.event
 
 import cn.bakamc.common.text.bakatext.BakaText
 import cn.bakamc.common.text.bakatext.modifier.ColorModifier
@@ -17,7 +17,7 @@ object BlockEventListener : Listener {
     fun onAnvilRename(event: PrepareAnvilEvent) {
         if (ENABLE_ANVIL_CUSTOM_RENAME)
             event.result?.let { itemStack ->
-                event.inventory.renameText?.let { renameText ->
+                event.view.renameText?.let { renameText ->
                     if (!BakaText.regex.containsMatchIn(renameText)) return
                     val meta = itemStack.itemMeta
                     val text = BakaText.parse(

@@ -1,6 +1,6 @@
 package cn.bakamc.folia.config.item
 
-import cn.bakamc.folia.event.pojo.BlockInfo
+import cn.bakamc.folia.event.pojo.ItemEntityInfo
 import moe.forpleuvoir.nebula.common.util.collection.NotifiableLinkedHashMap
 import moe.forpleuvoir.nebula.config.ConfigBase
 import moe.forpleuvoir.nebula.config.container.ConfigContainer
@@ -8,19 +8,19 @@ import moe.forpleuvoir.nebula.config.item.ConfigMutableMapValue
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 
-class ConfigBlockInfos(
+class ConfigItemEntityInfos(
     override val key: String,
-    defaultValue: Map<String, BlockInfo>
-) : ConfigBase<MutableMap<String, BlockInfo>, ConfigBlockInfos>(), ConfigMutableMapValue<String, BlockInfo> {
+    defaultValue: Map<String, ItemEntityInfo>
+) : ConfigBase<MutableMap<String, ItemEntityInfo>, ConfigItemEntityInfos>(), ConfigMutableMapValue<String, ItemEntityInfo> {
 
-    override val defaultValue: MutableMap<String, BlockInfo> = LinkedHashMap(defaultValue)
+    override var configValue: MutableMap<String, ItemEntityInfo> = map(defaultValue)
 
-    override var configValue: MutableMap<String, BlockInfo> = map(defaultValue)
+    override val defaultValue: MutableMap<String, ItemEntityInfo> = LinkedHashMap(defaultValue)
 
-    private fun map(map: Map<String, BlockInfo>): NotifiableLinkedHashMap<String, BlockInfo> {
+    private fun map(map: Map<String, ItemEntityInfo>): NotifiableLinkedHashMap<String, ItemEntityInfo> {
         return NotifiableLinkedHashMap(map).apply {
             subscribe {
-                this@ConfigBlockInfos.onChange(this@ConfigBlockInfos)
+                this@ConfigItemEntityInfos.onChange(this@ConfigItemEntityInfos)
             }
         }
     }
@@ -35,12 +35,12 @@ class ConfigBlockInfos(
 
     override fun deserialization(serializeElement: SerializeElement) {
         serializeElement.asObject.apply {
-            configValue = this@ConfigBlockInfos.map(this.mapValues { (_, block) ->
-                BlockInfo.deserialization(block)
+            configValue = this@ConfigItemEntityInfos.map(this.mapValues { (_, entity) ->
+                ItemEntityInfo.deserialization(entity)
             })
         }
     }
 
 }
 
-fun ConfigContainer.blockInfos(key: String, default: Map<String, BlockInfo>) = addConfig(ConfigBlockInfos(key, default))
+fun ConfigContainer.itemEntityInfos(key: String, default: Map<String, ItemEntityInfo>) = addConfig(ConfigItemEntityInfos(key, default))
