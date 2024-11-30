@@ -2,13 +2,18 @@ package cn.bakamc.folia.command
 
 import cn.bakamc.folia.BakaMCPlugin
 import cn.bakamc.folia.command.base.*
+import cn.bakamc.folia.event.pojo.BlockInfo
 import cn.bakamc.folia.util.launch
 import cn.bakamc.folia.util.literalText
 import cn.bakamc.folia.util.logger
+import moe.forpleuvoir.nebula.common.api.ExperimentalApi
 import moe.forpleuvoir.nebula.common.util.defaultLaunch
+import moe.forpleuvoir.nebula.serialization.extensions.toSerializeObject
+import moe.forpleuvoir.nebula.serialization.json.JsonSerializer.Companion.dumpAsJson
 import net.minecraft.network.chat.ClickEvent
 import org.bukkit.entity.Player
 
+@OptIn(ExperimentalApi::class)
 @Suppress("FunctionName", "DuplicatedCode")
 fun MiscCommand(): Command = Command("bakamc") {
     literal("reload") {
@@ -25,6 +30,15 @@ fun MiscCommand(): Command = Command("bakamc") {
         permission("bakamc.admin")
         execute<Player> {
             it.feedback(it.sender.world.name)
+        }
+    }
+
+    "blockInfo" {
+        permission("bakamc.admin")
+        execute<Player> {
+            val block = it.sender.getTargetBlock(null, 5)
+            val info = BlockInfo.fromBlock(block)
+            it.feedback(info.toSerializeObject().dumpAsJson(false, 2))
         }
     }
 

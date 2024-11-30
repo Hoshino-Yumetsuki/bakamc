@@ -49,6 +49,17 @@ data class BlockInfo(
             return BlockConfig.BLOCK_INFOS[string] ?: if (string.isNotEmpty()) BlockInfo(type = string) else EMPTY
         }
 
+        fun fromBlock(block: Block): BlockInfo =
+            BlockInfo(
+                block.x..block.x,
+                block.y..block.y,
+                block.z..block.z,
+                block.blockData.material.key.toString(),
+                block.biome.key.toString(),
+                block.world.key.toString(),
+            )
+
+
         override fun deserialization(serializeElement: SerializeElement): BlockInfo {
             return serializeElement.checkType<SerializeObject, BlockInfo> { obj ->
                 BlockInfo(
